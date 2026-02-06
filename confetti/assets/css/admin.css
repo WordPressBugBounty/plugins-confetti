@@ -17,25 +17,39 @@ a.wps-header-link--feedback:before { content: url("data:image/svg+xml,%3C%3Fxml 
 a.wps-header-link--ticket:before { content: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 16 16' width='16px' height='16px'%3E%3Cpath style=' stroke:none;fill-rule:nonzero;fill:%23fede53;fill-opacity:1;' d='M 8 1.601562 C 6.617188 1.601562 5.34375 2.042969 4.296875 2.789062 L 4.230469 2.722656 C 4.019531 2.511719 3.683594 2.511719 3.476562 2.722656 L 2.722656 3.476562 C 2.511719 3.683594 2.511719 4.019531 2.722656 4.230469 L 2.789062 4.296875 C 2.042969 5.34375 1.601562 6.617188 1.601562 8 C 1.601562 9.382812 2.042969 10.65625 2.785156 11.703125 L 2.71875 11.769531 C 2.511719 11.980469 2.511719 12.316406 2.71875 12.523438 L 3.472656 13.277344 C 3.683594 13.488281 4.019531 13.488281 4.226562 13.277344 L 4.292969 13.210938 C 5.339844 13.957031 6.617188 14.398438 8 14.398438 C 9.382812 14.398438 10.65625 13.957031 11.703125 13.210938 L 11.769531 13.277344 C 11.980469 13.488281 12.316406 13.488281 12.523438 13.277344 L 13.277344 12.523438 C 13.488281 12.316406 13.488281 11.980469 13.277344 11.769531 L 13.210938 11.703125 C 13.957031 10.65625 14.398438 9.382812 14.398438 8 C 14.398438 6.617188 13.957031 5.34375 13.210938 4.296875 L 13.277344 4.230469 C 13.488281 4.019531 13.488281 3.683594 13.277344 3.476562 L 12.523438 2.722656 C 12.316406 2.511719 11.980469 2.511719 11.769531 2.722656 L 11.703125 2.789062 C 10.65625 2.042969 9.382812 1.601562 8 1.601562 Z M 8 2.667969 C 9.085938 2.667969 10.09375 2.992188 10.9375 3.554688 L 9.773438 4.714844 C 9.246094 4.429688 8.640625 4.265625 8 4.265625 C 7.359375 4.265625 6.753906 4.429688 6.226562 4.714844 L 5.0625 3.554688 C 5.90625 2.992188 6.914062 2.667969 8 2.667969 Z M 3.554688 5.0625 L 4.714844 6.226562 C 4.429688 6.753906 4.265625 7.359375 4.265625 8 C 4.265625 8.640625 4.429688 9.246094 4.714844 9.773438 L 3.554688 10.9375 C 2.996094 10.09375 2.667969 9.085938 2.667969 8 C 2.667969 6.914062 2.992188 5.90625 3.554688 5.0625 Z M 12.445312 5.0625 C 13.007812 5.90625 13.332031 6.914062 13.332031 8 C 13.332031 9.085938 13.007812 10.09375 12.445312 10.9375 L 11.285156 9.773438 C 11.570312 9.246094 11.734375 8.640625 11.734375 8 C 11.734375 7.359375 11.570312 6.753906 11.285156 6.226562 Z M 8 5.332031 C 9.472656 5.332031 10.667969 6.527344 10.667969 8 C 10.667969 9.472656 9.472656 10.667969 8 10.667969 C 6.527344 10.667969 5.332031 9.472656 5.332031 8 C 5.332031 7.265625 5.632812 6.597656 6.113281 6.113281 C 6.597656 5.632812 7.265625 5.332031 8 5.332031 Z M 6.226562 11.285156 C 6.753906 11.570312 7.359375 11.734375 8 11.734375 C 8.640625 11.734375 9.246094 11.570312 9.773438 11.285156 L 10.9375 12.445312 C 10.09375 13.007812 9.085938 13.332031 8 13.332031 C 6.914062 13.332031 5.90625 13.003906 5.0625 12.445312 Z M 6.226562 11.285156 '/%3E%3C/svg%3E%0A"); }
 a.wps-header-link--upgrade:before { content: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 16 16' width='16px' height='16px'%3E%3Cpath style=' stroke:none;fill-rule:nonzero;fill:%23fede53;fill-opacity:1;' d='M 8 1.601562 C 4.472656 1.601562 1.601562 4.472656 1.601562 8 C 1.601562 11.527344 4.472656 14.398438 8 14.398438 C 11.527344 14.398438 14.398438 11.527344 14.398438 8 C 14.398438 4.472656 11.527344 1.601562 8 1.601562 Z M 8 2.667969 C 10.953125 2.667969 13.332031 5.046875 13.332031 8 C 13.332031 10.953125 10.953125 13.332031 8 13.332031 C 5.046875 13.332031 2.667969 10.953125 2.667969 8 C 2.667969 5.046875 5.046875 2.667969 8 2.667969 Z M 8 3.734375 C 5.644531 3.734375 3.734375 5.644531 3.734375 8 C 3.734375 10.355469 5.644531 12.265625 8 12.265625 C 10.355469 12.265625 12.265625 10.355469 12.265625 8 C 12.265625 5.644531 10.355469 3.734375 8 3.734375 Z M 8 5.332031 C 8.136719 5.332031 8.273438 5.386719 8.378906 5.488281 L 9.976562 7.089844 C 10.1875 7.296875 10.1875 7.636719 9.976562 7.84375 C 9.769531 8.050781 9.429688 8.050781 9.222656 7.84375 L 8.535156 7.152344 L 8.535156 10.132812 C 8.535156 10.425781 8.292969 10.667969 8 10.667969 C 7.707031 10.667969 7.464844 10.425781 7.464844 10.132812 L 7.464844 7.152344 L 6.777344 7.84375 C 6.570312 8.050781 6.230469 8.050781 6.023438 7.84375 C 5.8125 7.636719 5.8125 7.296875 6.023438 7.089844 L 7.621094 5.488281 C 7.726562 5.386719 7.863281 5.332031 8 5.332031 Z M 8 5.332031 '/%3E%3C/svg%3E%0A"); }
 
-.wps-wrap .button,
-.wps-wrap .button-primary,
-.wps-button { border: 1px solid #FF8500; background: transparent; display: inline-block; border-radius: 999px; padding: 5px 25px; color: #FF8500; text-transform: uppercase; font-weight: bold; text-decoration: none; }
-.wps-wrap .button:hover,
-.wps-wrap .button-primary:hover,
-.wps-button:hover { background: #FFB600; color: #FFF; border: 1px solid #FFB600; }
-.wps-wrap .button-primary { background: #FF8500; color: #FFF; border: 1px solid #FF8500; }
-.wps-wrap .button-secondary { border-radius: 40px; border-color: #FFB600; color: #FFB600; }
-.wps-wrap .button-secondary:hover { border-color: #FF8500; color: #FFF; background: #FF8500; }
+body.settings_page_wps_confetti .button,
+body.settings_page_wps_confetti .wps-wrap .button,
+body.settings_page_wps_confetti .wps-wrap .button-primary,
+body.settings_page_wps_confetti .wps-wrap .button-secondary,
+body.settings_page_wps_confetti .wps-button { border: 1px solid #FF8500; background: transparent; display: inline-block; border-radius: 999px; padding: 5px 25px; color: #FF8500; text-transform: uppercase; font-weight: bold; text-decoration: none; }
+body.settings_page_wps_confetti .wps-wrap .button:hover,
+body.settings_page_wps_confetti .wps-wrap .button-primary:hover,
+body.settings_page_wps_confetti .wps-button:hover { background: #FFB600; color: #FFF; border: 1px solid #FFB600; }
+body.settings_page_wps_confetti .wps-wrap .button-primary:hover,
+body.settings_page_wps_confetti .wps-button:hover { background: #FFB600; color: #FFF; border: 1px solid #FFB600; }
+body.settings_page_wps_confetti .wps-wrap .button-primary { background: #FF8500; color: #FFF; border: 1px solid #FF8500; }
+body.settings_page_wps_confetti .wps-wrap .button-secondary { border-radius: 40px; border-color: #FFB600; color: #FFB600; }
+body.settings_page_wps_confetti .wps-wrap .button-secondary:hover { border-color: #FF8500; color: #FFF; background: #FF8500; }
+body.settings_page_wps_confetti .wps-wrap .button-secondary { border-radius: 40px; border-color: #FFB600; color: #FFB600; }
+body.settings_page_wps_confetti .wps-wrap .button-secondary:hover { border-color: #FF8500; color: #FFF; background: #FF8500; }
 
 .wps-description { display: block; font-size: 13px; color: #999; display: block; margin: 5px 0 0 0; }
 
 a.wps-confetti-documentation { font-size: 12px; }
 a.wps-confetti-documentation:before { content: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 16 16' width='16px' height='16px'%3E%3Cpath style=' stroke:none;fill-rule:nonzero;fill:%23fede53;fill-opacity:1;' d='M 3.199219 2.132812 C 2.609375 2.132812 2.132812 2.609375 2.132812 3.199219 L 2.132812 12.800781 C 2.132812 13.390625 2.609375 13.867188 3.199219 13.867188 L 4.03125 13.867188 C 3.847656 13.550781 3.734375 13.191406 3.734375 12.800781 L 3.734375 3.199219 C 3.734375 2.808594 3.847656 2.449219 4.03125 2.132812 Z M 5.867188 2.132812 C 5.277344 2.132812 4.800781 2.609375 4.800781 3.199219 L 4.800781 12.800781 C 4.800781 13.390625 5.277344 13.867188 5.867188 13.867188 L 12.800781 13.867188 C 13.390625 13.867188 13.867188 13.390625 13.867188 12.800781 L 13.867188 5.601562 C 13.867188 5.457031 13.8125 5.324219 13.710938 5.222656 L 10.777344 2.289062 C 10.675781 2.1875 10.542969 2.132812 10.398438 2.132812 Z M 10.132812 3.148438 L 12.851562 5.867188 L 10.667969 5.867188 C 10.371094 5.867188 10.132812 5.628906 10.132812 5.332031 Z M 7.464844 8 L 11.199219 8 C 11.496094 8 11.734375 8.238281 11.734375 8.535156 C 11.734375 8.828125 11.496094 9.066406 11.199219 9.066406 L 7.464844 9.066406 C 7.171875 9.066406 6.933594 8.828125 6.933594 8.535156 C 6.933594 8.238281 7.171875 8 7.464844 8 Z M 7.464844 10.132812 L 10.132812 10.132812 C 10.425781 10.132812 10.667969 10.371094 10.667969 10.667969 C 10.667969 10.960938 10.425781 11.199219 10.132812 11.199219 L 7.464844 11.199219 C 7.171875 11.199219 6.933594 10.960938 6.933594 10.667969 C 6.933594 10.371094 7.171875 10.132812 7.464844 10.132812 Z M 7.464844 10.132812 '/%3E%3C/svg%3E%0A"); }
 
-.wps-confetti-upgrade { float: right; width: 20%; max-width: 250px; border-radius: 5px; box-shadow: 0 5px 5px rgba(0,0,0,.1); background: #FFF; padding: 20px 30px; }
-.wps-confetti-upgrade > ul > li { position: relative; padding-left: 16px; }
-.wps-confetti-upgrade > ul > li:before { content: "\2713"; position: absolute; left: 0; color: #fecd08; font-weight: bold; }
-.wps-confetti-upgrade ul ul li { list-style: disc; padding-left: 0; margin: 5px 0 0 20px; }
+#wps-promos { float: right; width: 350px; margin-left: 100px; }
+#wps-promos h2 { font-size: 12px; margin-top: 50px; text-transform: uppercase; }
+.wps-promo { border-radius: 5px; box-shadow: 0 5px 5px rgba(0,0,0,.1); border: 1px solid #FF8500; background: #FFF; padding: 20px 30px; margin: 0 0 20px 0; }
+.wps-promo > ul > li { position: relative; padding-left: 16px; }
+.wps-promo > ul > li:before { content: "\2713"; position: absolute; left: 0; color: #fecd08; font-weight: bold; }
+.wps-promo ul ul li { list-style: disc; padding-left: 0; margin: 5px 0 0 20px; }
+.wps-promo h3 { font-size: 22px; line-height: 1.2; margin-top: 5px; }
+.wps-promo-featured { background: radial-gradient(circle, #FFA633, #FF8500); }
+.wps-promo-featured * { color: #FFF; }
+.wps-promo-featured p { font-size: 16px; }
+body.settings_page_wps_confetti .wps-promo-featured .button { background: #FFF; color: #FF8500; }
+.wps-promo-featured .wps-promo-price { font-size: 12px; margin-top: 10px; }
 
 .wps-wrap .form-table { width: auto; clear: none; }
 
@@ -46,3 +60,261 @@ a.wps-confetti-documentation:before { content: url("data:image/svg+xml,%3C%3Fxml
 .wps-options-menu li.wps-options-active { font-weight: bold; border-bottom: 2px solid #fecd08; }
 
 .wps-confetti-sub-options { font-size: 13px; padding: 7px 0 7px 20px; }
+
+.wps-shortcode-box { background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; padding: 12px 15px; display: inline-flex; align-items: center; gap: 10px; margin: 10px 0; }
+.wps-shortcode-box code { background: transparent; padding: 0; font-size: 14px; color: #333; }
+.wps-copy-shortcode { margin: 0 !important; padding: 4px 12px !important; font-size: 12px !important; min-height: auto !important; }
+
+.wps-shortcode-params { margin: 10px 0 0 0; }
+.wps-shortcode-params li { margin-bottom: 15px; line-height: 1.6; }
+.wps-shortcode-params code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-size: 13px; }
+
+.wps-wrap h2 { color: #333; font-size: 24px; margin: 20px 0; }
+
+/* Instance Tabs (WordPress subsubsub style) */
+.subsubsub { float: none; margin: -10px 0 30px 0; }
+
+body.settings_page_wps_confetti a.button.button-link-delete { background: red; color: #FFF; border: none; float: right; margin-top: 15px; }
+body.settings_page_wps_confetti a.button.button-link-delete:hover { background: #8b0000; border: none; }
+
+tr.upgrade-option { opacity: .6; }
+
+/* Add Instance Button (integrated with subsubsub) */
+.wps-add-instance-btn { 
+	text-decoration: none; 
+	color: #0073aa; 
+	font-size: 13px; 
+	line-height: 1.4;
+	position: relative;
+}
+.wps-add-instance-btn:hover { 
+	color: #005177; 
+}
+.wps-premium-badge { 
+	position: absolute; 
+	top: -8px; 
+	right: -8px; 
+	background: #FF8500; 
+	color: #FFF; 
+	font-size: 9px; 
+	padding: 1px 4px; 
+	border-radius: 8px; 
+	font-weight: bold; 
+	text-transform: uppercase; 
+	line-height: 1;
+}
+
+body.settings_page_wps_confetti #TB_window { background: none; box-shadow: none; }
+body.settings_page_wps_confetti #TB_title { background: none; border: none; }
+body.settings_page_wps_confetti #TB_ajaxWindowTitle { display: none; }
+body.settings_page_wps_confetti #TB_ajaxContent { padding: 0; }
+body.settings_page_wps_confetti .tb-close-icon { color: #FFF; }
+
+/* Custom color picker display */
+.wps-color-display { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 10px; position: relative; z-index: 10; }
+.wps-color-box { display: inline-block; width: 40px; height: 40px; border: 2px solid #ddd; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; }
+.wps-color-box-empty { 
+	background-color: #f9f9f9; 
+	border: 2px dashed #ccc; 
+	background-image: linear-gradient(45deg, #e0e0e0 25%, transparent 25%), linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e0e0e0 75%), linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
+	background-size: 8px 8px;
+	background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+	position: relative;
+}
+.wps-color-box-empty::after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 20px;
+	height: 2px;
+	background: #999;
+}
+.wps-edit-color-link,
+.wps-remove-color-link { text-decoration: none; font-size: 13px; cursor: pointer; pointer-events: auto; position: relative; z-index: 11; }
+.wps-edit-color-link:hover,
+.wps-remove-color-link:hover { text-decoration: underline; }
+.wps-confetti-color .wps-remove-color-link { color: #dc3232; }
+.wps-confetti-color .wp-picker-container .wp-color-result { display: none !important; }
+.wps-confetti-color .wp-picker-container { position: relative; }
+.wps-confetti-color .wp-picker-container .iris-picker { z-index: 100; }
+.wps-confetti-color .wp-picker-container .wp-picker-input-wrap { display: none !important; }
+.wps-confetti-color .wp-picker-container .wp-picker-clear { display: none !important; }
+.wps-confetti-color .wp-picker-container .button.wp-picker-clear { display: none !important; }
+
+/* Integrations List Styles */
+.wps-confetti--options-list {
+	background: #FFF;
+	border-radius: 5px;
+	box-shadow: 0 1px 4px rgb(18 25 97 / 8%);
+	margin: 0 0 40px 0;
+	list-style: none;
+	padding: 0;
+}
+
+.wps-confetti--options-list > li {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 30px;
+	align-items: center;
+	border-bottom: 1px solid #f0f0f0;
+	margin: 0;
+}
+
+.wps-confetti--options-list > li:last-child {
+	border-bottom: none;
+}
+
+.wps-confetti--toggle {
+	padding-left: 30px;
+}
+
+.wps-confetti-switch {
+	position: relative;
+	display: inline-block;
+	width: 44px;
+	height: 24px;
+}
+
+.wps-confetti-switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.wps-confetti-switch-slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #ccc;
+	transition: .4s;
+	border-radius: 24px;
+}
+
+.wps-confetti-switch-slider:before {
+	position: absolute;
+	content: "";
+	height: 18px;
+	width: 18px;
+	left: 3px;
+	bottom: 3px;
+	background-color: white;
+	transition: .4s;
+	border-radius: 50%;
+}
+
+.wps-confetti-switch input:checked + .wps-confetti-switch-slider {
+	background-color: #FF8500;
+}
+
+.wps-confetti-switch input:checked + .wps-confetti-switch-slider:before {
+	transform: translateX(20px);
+}
+
+.wps-confetti--options-list .wps-confetti--options-list--title {
+	flex-grow: 20;
+	padding: 20px 0;
+}
+
+.wps-confetti--options-list .wps-confetti--options-list--title h2 {
+	margin: 0;
+	font-size: 16px;
+}
+
+.wps-confetti--options-list .wps-confetti--options-list--description {
+	flex-basis: 100%;
+	padding: 0 30px 10px 115px;
+	margin-top: -10px;
+	color: #666;
+	font-size: 13px;
+}
+
+.wps-confetti--options-list .wps-confetti--options-list--buttons {
+	margin-left: auto;
+	padding: 0 30px 0 0;
+	display: flex;
+	gap: 15px;
+	align-items: center;
+}
+
+.wps-confetti--options-list .wps-confetti--options-list--buttons a {
+	text-decoration: none;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	color: #FF8500;
+}
+
+.wps-confetti--options-list .wps-confetti--options-list--buttons a:hover {
+	color: #FFB600;
+}
+
+.wps-confetti--options-list .wps-confetti--options-list--buttons a span {
+	font-size: 14px;
+	width: auto;
+	height: auto;
+}
+
+.wps-confetti--options-list--options {
+	background: linear-gradient(#EFEFEF, #F7F7F7 20px);
+	padding: 15px 30px 15px 115px;
+	flex-basis: 100%;
+}
+
+.wps-confetti--options-list--options form p {
+	margin: 10px 0;
+}
+
+.wps-confetti--options-list--options select,
+.wps-confetti--options-list--options input[type="text"] {
+	max-width: 400px;
+}
+
+/* Unavailable integrations */
+.wps-confetti--options-list.unavailable {
+	display: flex;
+	gap: 15px;
+	flex-wrap: wrap;
+}
+
+.wps-confetti--options-list.unavailable li {
+	width: 250px;
+	background: #FFF;
+	padding: 15px 20px;
+	border-radius: 5px;
+	box-shadow: 0 1px 4px rgb(18 25 97 / 8%);
+	border: none;
+	flex-wrap: nowrap;
+	gap: 0;
+}
+
+.wps-confetti--options-list.unavailable li h2 {
+	margin: 0 0 5px 0;
+	font-size: 14px;
+}
+
+.wps-confetti--options-list.unavailable .wps-confetti--options-list--description {
+	padding: 0;
+	margin: 0 0 10px 0;
+	flex-basis: auto;
+}
+
+.wps-confetti--options-list.unavailable .wps-confetti--options-list--buttons {
+	padding: 0;
+	margin: 10px 0 0 0;
+	justify-content: flex-start;
+}
+
+.wps-confetti--options .dashicons {
+	color: #666;
+	font-size: 18px;
+	cursor: pointer;
+}
+
+.wps-confetti--options .dashicons:hover {
+	color: #FF8500;
+}

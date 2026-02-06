@@ -51,6 +51,62 @@ async function wps_run_confetti( passed_defaults = {} ) {
 		await wps_confetti_sleep( defaults.delay * 1000 );
 	}
 
+	// Process custom SVG shapes
+	var customShapes = [];
+	
+	console.log('=== DEBUGGING CUSTOM SHAPES ===');
+	console.log('defaults object:', defaults);
+	console.log('defaults.svgs:', defaults.svgs);
+	console.log('defaults.emojis:', defaults.emojis);
+	console.log('defaults.shapes before processing:', defaults.shapes);
+	
+	if ( defaults.svgs && Array.isArray( defaults.svgs ) && defaults.svgs.length > 0 ) {
+		console.log('Processing', defaults.svgs.length, 'SVGs');
+		defaults.svgs.forEach(function( svgData ) {
+			console.log('SVG data:', svgData);
+			if ( svgData.path ) {
+				try {
+					var shape = confetti.shapeFromPath({ path: svgData.path });
+					customShapes.push( shape );
+					console.log('SVG shape created successfully:', shape);
+				} catch(e) {
+					console.warn('Error creating SVG shape:', e);
+				}
+			} else {
+				console.warn('SVG data missing path:', svgData);
+			}
+		});
+	} else {
+		console.log('No SVGs to process');
+	}
+
+	// Process emoji shapes
+	if ( defaults.emojis && Array.isArray( defaults.emojis ) && defaults.emojis.length > 0 ) {
+		console.log('Processing', defaults.emojis.length, 'emojis');
+		var scalar = defaults.scalar || 1;
+		defaults.emojis.forEach(function( emoji ) {
+			console.log('Processing emoji:', emoji);
+			try {
+				var emojiShape = confetti.shapeFromText({ text: emoji, scalar: scalar });
+				customShapes.push( emojiShape );
+				console.log('Emoji shape created successfully:', emojiShape);
+			} catch(e) {
+				console.warn('Error creating emoji shape:', e);
+			}
+		});
+	} else {
+		console.log('No emojis to process');
+	}
+
+	// Add custom shapes to defaults if any were created
+	if ( customShapes.length > 0 ) {
+		defaults.shapes = customShapes;
+		console.log('Custom shapes added to defaults:', customShapes.length, 'shapes');
+		console.log('defaults.shapes after processing:', defaults.shapes);
+	} else {
+		console.log('No custom shapes created');
+	}
+
 	if ( defaults.style == 'cannon' ) {
 
 		confetti( defaults );
@@ -198,7 +254,9 @@ async function wps_run_confetti( passed_defaults = {} ) {
 					var colors = ["#26ccff","#a25afd","#ff5e7e","#88ff5a","#fcff42","#ffa62d","#ff36ff"];
 				}
 
-				confetti(
+				var confettiOptions = Object.assign(
+					{},
+					defaults,
 					{
 						particleCount: 1,
 						zIndex: 99999,
@@ -209,12 +267,19 @@ async function wps_run_confetti( passed_defaults = {} ) {
 							// since particles fall down, skew start toward the top
 							y: (Math.random() * skew) - 0.2
 						},
-						colors: [ wps_confetti_get_random_color( colors ) ],
 						gravity: randomInRange( parseFloat( defaults.gravity ) - .2, parseFloat( defaults.gravity ) + .2 ),
 						scalar: randomInRange( parseFloat( defaults.scalar ) - .3, parseFloat( defaults.scalar ) + .3 ),
 						drift: randomInRange( parseFloat( defaults.drift ) - .4, parseFloat( defaults.drift ) + .4 )
 					}
 				);
+
+				// Only add colors if no custom shapes are present
+				if ( ! defaults.shapes || defaults.shapes.length === 0 ) {
+					confettiOptions.colors = [ wps_confetti_get_random_color( colors ) ];
+				}
+
+				console.log('Falling confetti options:', confettiOptions);
+				confetti( confettiOptions );
 			},
 			intervalTime
 		);
@@ -230,34 +295,38 @@ async function wps_run_confetti( passed_defaults = {} ) {
 		}
 
 		(function frame() {
-			confetti(
-				Object.assign(
-					{},
-					defaults,
-					{
-						particleCount: 2,
-						angle: 60,
-						//spread: 55,
-						origin: { x: 0, y: defaults.origin.y },
-						colors: [ wps_confetti_get_random_color( colors ) ],
-						zIndex: 99999
-					}
-				)
+			var leftOptions = Object.assign(
+				{},
+				defaults,
+				{
+					particleCount: 2,
+					angle: 60,
+					//spread: 55,
+					origin: { x: 0, y: defaults.origin.y },
+					zIndex: 99999
+				}
 			);
-			confetti(
-				Object.assign(
-					{},
-					defaults,
-					{
-						particleCount: 2,
-						angle: 120,
-						//spread: 55,
-						origin: { x: 1, y: defaults.origin.y },
-						colors: [ wps_confetti_get_random_color( colors ) ],
-						zIndex: 99999
-					}
-				)
+
+			var rightOptions = Object.assign(
+				{},
+				defaults,
+				{
+					particleCount: 2,
+					angle: 120,
+					//spread: 55,
+					origin: { x: 1, y: defaults.origin.y },
+					zIndex: 99999
+				}
 			);
+
+			// Only add colors if no custom shapes are present
+			if ( ! defaults.shapes || defaults.shapes.length === 0 ) {
+				leftOptions.colors = [ wps_confetti_get_random_color( colors ) ];
+				rightOptions.colors = [ wps_confetti_get_random_color( colors ) ];
+			}
+
+			confetti( leftOptions );
+			confetti( rightOptions );
 
 			if (Date.now() < end) {
 				requestAnimationFrame( frame );

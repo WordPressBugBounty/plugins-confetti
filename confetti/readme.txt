@@ -2,9 +2,9 @@
 Contributors: wpsunshine, sccr410
 Tags: thank you, thankyou, confetti, animation, form, forms, e-commerce, ecommerce, confirmation, congratulations, celebration, success, fun
 Requires at least: 5.5
-Tested up to: 6.6
+Tested up to: 6.9
 Requires PHP: 5.6
-Stable tag: 1.3.7
+Stable tag: 1.3.8.1
 License: GPLv3 or later License
 URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -54,6 +54,13 @@ Easy integration using the [confetti] shortcode on their respective Thank You/Re
 3. Use the Confetti block OR shortcode to include on any page of your site
 
 == Changelog ==
+
+= 1.3.8.1 2025-12-18 =
+* Fix: remove leftover error logging
+
+= 1.3.8 =
+* Add: Cross promotions
+* Enhancement: Shortcode description on settings page
 
 = 1.3.7 =
 * Current version compatibility

@@ -3,7 +3,7 @@
  * Plugin Name: Confetti
  * Plugin URI: https://www.wpsunshine.com/plugins/confetti
  * Description: Add some fun and excitement to your site with confetti effects on any page of your WordPress site via shortcode or block, easily!
- * Version: 1.3.7
+ * Version: 1.3.8.1
  * Author: WP Sunshine
  * Author URI: https://www.wpsunshine.com
  * Text Domain: confetti
@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( ! defined( 'WPS_CONFETTI_VERSION' ) ) {
 
-	define( 'WPS_CONFETTI_VERSION', '1.3.7' );
+	define( 'WPS_CONFETTI_VERSION', '1.3.8.1' );
 	define( 'WPS_CONFETTI_NAME', 'Confetti' );
 	define( 'WPS_CONFETTI_PLUGIN_FILE', __FILE__ );
 	define( 'WPS_CONFETTI_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
