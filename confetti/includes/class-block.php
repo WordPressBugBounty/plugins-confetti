@@ -41,17 +41,13 @@ class WPSunshine_Confetti_Block {
 		wp_register_script(
 			'confetti-block',
 			WPS_CONFETTI_PLUGIN_URL . 'assets/js/block.js',
-			array( 'wp-blocks', 'wp-element', 'wp-editor', 'jquery' ),
+			array( 'wp-blocks', 'wp-element', 'wp-block-editor' ),
 			WPS_CONFETTI_VERSION,
 			true
 		);
 
 		register_block_type(
-			'wpsunshine/confetti',
-			array(
-				'editor_script' => 'confetti-block',
-				'editor_style'  => 'confetti-style',
-			)
+			WPS_CONFETTI_ABSPATH . '/includes/blocks/confetti'
 		);
 
 	}

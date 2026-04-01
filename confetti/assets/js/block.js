@@ -1,9 +1,7 @@
 ( function( blocks, blockEditor, element, components ) {
 
-	const { registerBlockType }           = blocks;
-	const { RichText, InspectorControls } = blockEditor;
-	const { Fragment }                    = element;
-	const { TextControl, ToggleControl, Panel, PanelBody, PanelRow, SelectControl, ColorPicker } = components;
+	const { registerBlockType }  = blocks;
+	const { useBlockProps }      = blockEditor;
 
 	const el = element.createElement;
 
@@ -28,26 +26,23 @@
 	registerBlockType(
 		'wpsunshine/confetti',
 		{
-			title: 'Confetti', // The title of block in editor.
-			icon: iconEl, // The icon of block in editor.
-			category: 'common', // The category of block in editor.
+			icon: iconEl,
 			edit: function( props ) {
-				return (
-				el(
+				const blockProps = useBlockProps( { className: 'confetti-block', style: blockStyle } );
+				return el(
 					'div',
-					{ class: 'confetti-block', style: blockStyle },
+					blockProps,
 					iconEl,
 					el(
 						'h3',
-						{  },
+						{},
 						'Confetti'
 					),
 					el(
 						'button',
-						{ class: 'button button-primary', onClick: () => preview_click( props.attributes ) },
+						{ className: 'button button-primary', onClick: () => preview_click( props.attributes ) },
 						'Preview Confetti'
 					)
-				)
 				);
 			},
 			save: function( props ) {
