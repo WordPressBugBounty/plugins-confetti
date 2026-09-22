@@ -1,0 +1,192 @@
+{
+	"_comment": "Every customizable option, defined once. The admin option rows, the free version's locked rows, and the preview JavaScript are all generated from this file. Options marked common are offered by every style; the rest are listed per style in catalog.json. Order here is the order they appear in the admin. 'group' decides which panel a row lands in: behavior, physics (the collapsed Advanced Physics group inside Behavior) or appearance. Numeric options get a slider unless slider is false, and the slider needs min and max.",
+	"colors": {
+		"label": "Colors",
+		"render": "colors",
+		"group": "appearance",
+		"common": true
+	},
+	"shapes": {
+		"label": "Shapes",
+		"render": "shapes",
+		"group": "appearance",
+		"common": true
+	},
+	"emojis": {
+		"label": "Emojis",
+		"render": "emojis",
+		"group": "appearance",
+		"common": true
+	},
+	"svgs": {
+		"label": "Custom SVGs",
+		"render": "svgs",
+		"group": "appearance",
+		"common": true
+	},
+	"scalar": {
+		"label": "Size",
+		"type": "number",
+		"min": 0,
+		"max": 5,
+		"step": 0.05,
+		"default": 1,
+		"common": true,
+		"group": "appearance",
+		"description": "How big each piece is. 1 is normal size. Try a small number — teeny tiny confetti is adorable."
+	},
+	"overlay": {
+		"label": "Overlay Message",
+		"render": "overlay",
+		"group": "appearance",
+		"common": true,
+		"description": "Cover the screen with a message while the confetti runs."
+	},
+	"show_once": {
+		"label": "Show Once",
+		"type": "checkbox",
+		"default": 0,
+		"common": true,
+		"group": "behavior",
+		"checkbox_label": "Only show this confetti one time per visitor",
+		"description": "Uses browser storage to remember whether it already ran."
+	},
+	"duration": {
+		"label": "Duration",
+		"type": "number",
+		"min": 0,
+		"max": 30,
+		"step": 1,
+		"default": 3,
+		"group": "behavior",
+		"suffix": "seconds",
+		"description": "How long this style keeps going."
+	},
+	"delay": {
+		"label": "Delay",
+		"type": "number",
+		"min": 0,
+		"max": 30,
+		"step": 1,
+		"default": 0,
+		"common": true,
+		"group": "behavior",
+		"suffix": "seconds",
+		"description": "How long to wait before the confetti starts."
+	},
+	"speed": {
+		"label": "Speed",
+		"type": "number",
+		"min": 1,
+		"max": 100,
+		"step": 1,
+		"default": 75,
+		"group": "behavior",
+		"description": "How fast the style plays, 1 to 100."
+	},
+	"particleCount": {
+		"label": "Particle Count",
+		"type": "number",
+		"min": 0,
+		"max": 200,
+		"step": 1,
+		"default": 50,
+		"group": "behavior",
+		"description": "How many pieces to launch. More is fun — but there is a lot of math involved."
+	},
+	"spread": {
+		"label": "Spread",
+		"type": "number",
+		"min": 0,
+		"max": 360,
+		"step": 1,
+		"default": 45,
+		"group": "behavior",
+		"description": "How far off the launch angle pieces can go, in degrees."
+	},
+	"angle": {
+		"label": "Launch Angle",
+		"type": "number",
+		"min": 0,
+		"max": 360,
+		"step": 1,
+		"default": 90,
+		"group": "behavior",
+		"suffix": "90° = straight up"
+	},
+	"startVelocity": {
+		"label": "Start Velocity",
+		"type": "number",
+		"min": 0,
+		"max": 100,
+		"step": 1,
+		"default": 45,
+		"group": "behavior",
+		"description": "How fast the pieces are moving when they launch, in pixels."
+	},
+	"origin": {
+		"label": "Origin",
+		"render": "origin",
+		"group": "behavior"
+	},
+	"gravity": {
+		"label": "Gravity",
+		"type": "number",
+		"min": -1,
+		"max": 3,
+		"step": 0.05,
+		"default": 1,
+		"group": "physics",
+		"description": "How hard the pieces are pulled down. 1 is normal, 0.5 is half. Go below 0 and they float up."
+	},
+	"decay": {
+		"label": "Decay",
+		"type": "number",
+		"min": 0,
+		"max": 1,
+		"step": 0.01,
+		"default": 0.9,
+		"group": "physics",
+		"description": "How quickly the pieces lose speed. Keep this between 0 and 1, or they speed up instead."
+	},
+	"drift": {
+		"label": "Drift",
+		"type": "number",
+		"min": -1,
+		"max": 1,
+		"step": 0.1,
+		"default": 0,
+		"group": "physics",
+		"description": "How much the pieces slide sideways as they fall. Negative goes left, positive goes right."
+	},
+	"ticks": {
+		"label": "Ticks",
+		"type": "number",
+		"min": 0,
+		"max": 1000,
+		"step": 10,
+		"default": 200,
+		"group": "physics",
+		"description": "How many times each piece moves before it disappears. Raise it if they vanish too soon."
+	},
+	"flat": {
+		"label": "Flat",
+		"type": "checkbox",
+		"default": 0,
+		"common": true,
+		"group": "physics",
+		"checkbox_label": "Turn off the 3D tilt and wobble",
+		"description": "Flat pieces look a little sad, but emojis and SVGs are much easier to see."
+	},
+	"zindex": {
+		"label": "Z-Index",
+		"type": "number",
+		"min": 0,
+		"step": 1,
+		"default": 2147483647,
+		"common": true,
+		"group": "physics",
+		"slider": false,
+		"description": "How far in front of the page the confetti sits. Defaults to the highest value a browser accepts, so it lands on top of popups and cookie banners. Lower it if you want something else to cover the confetti."
+	}
+}

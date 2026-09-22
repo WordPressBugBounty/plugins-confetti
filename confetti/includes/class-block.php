@@ -24,8 +24,6 @@ class WPSunshine_Confetti_Block {
 
 		add_action( 'init', array( $this, 'init' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'editor_scripts' ) );
-		add_action( 'enqueue_block_assets', array( $this, 'scripts' ) );
-		add_filter( 'render_block', array( $this, 'render_block' ), 10, 2 );
 	}
 
 	/**
@@ -41,13 +39,23 @@ class WPSunshine_Confetti_Block {
 		wp_register_script(
 			'confetti-block',
 			WPS_CONFETTI_PLUGIN_URL . 'assets/js/block.js',
-			array( 'wp-blocks', 'wp-element', 'wp-block-editor' ),
+			array( 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components' ),
 			WPS_CONFETTI_VERSION,
 			true
 		);
 
+		// Add instance data for preview functionality.
+		wp_localize_script(
+			'confetti-block',
+			'confetti_instances',
+			WPS_Confetti()->get_instances_for_js()
+		);
+
 		register_block_type(
-			WPS_CONFETTI_ABSPATH . '/includes/blocks/confetti'
+			WPS_CONFETTI_ABSPATH . '/includes/blocks/confetti',
+			array(
+				'render_callback' => array( $this, 'render_block' ),
+			)
 		);
 
 	}
@@ -70,17 +78,19 @@ class WPSunshine_Confetti_Block {
 			WPS_CONFETTI_VERSION,
 			true
 		);
-		wp_add_inline_script( 'confetti-editor', WPS_Confetti()->inline_script() );
-	}
 
-	/**
-	 * Function to be called when needed so Confetti is not loaded on every page.
-	 */
-	public function scripts() {
-		if ( is_singular() ) {
-			$id = get_the_ID();
-			if ( has_block( 'wpsunshine/confetti', $id ) ) {
-				WPS_Confetti()->enqueue_scripts();
+		// Any instance might be previewed in the editor, so load every style
+		// this install can run rather than guessing.
+		foreach ( array_keys( WPSunshine_Confetti_Styles::get_available() ) as $style_id ) {
+			$url = WPSunshine_Confetti_Styles::get_script_url( $style_id );
+			if ( $url ) {
+				wp_enqueue_script(
+					'confetti-editor-style-' . $style_id,
+					$url,
+					array( 'confetti-editor' ),
+					WPS_CONFETTI_VERSION,
+					true
+				);
 			}
 		}
 	}
@@ -88,18 +98,22 @@ class WPSunshine_Confetti_Block {
 	/**
 	 * Render the block.
 	 *
-	 * @param string $content Content to be output.
 	 * @param array  $attributes Array of attributes for the block.
+	 * @param string $content Content to be output.
 	 */
-	public function render_block( $content, $attributes ) {
+	public function render_block( $attributes, $content = '' ) {
 
-		if ( 'wpsunshine/confetti' != $attributes['blockName'] ) {
-			return $content;
-		}
+		$instance_id = isset( $attributes['instance'] ) ? sanitize_key( $attributes['instance'] ) : 'default';
+		$trigger     = isset( $attributes['trigger'] ) ? sanitize_text_field( $attributes['trigger'] ) : 'onload';
 
-		$output = WPS_Confetti()->trigger();
-		$output = apply_filters( 'wps_confetti_block', $output, $attributes );
-		return $output;
+		// The block calls it "onload"; everything else calls it "load".
+		$method = ( 'inview' === $trigger ) ? 'inview' : 'load';
+
+		return WPS_Confetti()->render_placement(
+			$instance_id,
+			$method,
+			'wps-confetti-block-' . wp_rand( 1000, 9999 )
+		);
 
 	}
 

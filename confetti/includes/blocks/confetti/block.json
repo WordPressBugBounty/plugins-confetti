@@ -1,0 +1,26 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "wpsunshine/confetti",
+	"version": "1.0.0",
+	"title": "Confetti",
+	"category": "widgets",
+	"icon": "smiley",
+	"description": "Add confetti effects to your page.",
+	"attributes": {
+		"instance": {
+			"type": "string",
+			"default": "default"
+		},
+		"trigger": {
+			"type": "string",
+			"default": "onload"
+		}
+	},
+	"supports": {
+		"html": false,
+		"multiple": true
+	},
+	"textdomain": "confetti",
+	"editorScript": "confetti-block"
+}

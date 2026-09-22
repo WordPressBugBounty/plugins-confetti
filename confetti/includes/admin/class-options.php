@@ -42,7 +42,6 @@ class WPSunshine_Confetti_Options {
 	private $tab;
 
 	private $max_instances = 1;
-	private $save_button   = true;
 	/**
 	 * Constructor setup all needed hooks.
 	 */
@@ -58,6 +57,7 @@ class WPSunshine_Confetti_Options {
 
 		// Show settings.
 		add_action( 'wps_confetti_options_tab_instances', array( $this, 'instances_tab' ) );
+		add_action( 'wps_confetti_instance_sidebar', array( $this, 'sidebar_preview' ), 10, 2 );
 		add_action( 'wps_confetti_options_tab_integrations_promo', array( $this, 'integrations_promo_tab' ) );
 		add_action( 'wps_confetti_options_tab_usage', array( $this, 'usage_tab' ) );
 
@@ -81,6 +81,7 @@ class WPSunshine_Confetti_Options {
 	public function admin_enqueue_scripts() {
 
 		if ( isset( $_GET['page'] ) && 'wps_confetti' == $_GET['page'] ) {
+			WPS_Confetti()->require_all_styles();
 			WPS_Confetti()->enqueue_scripts();
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script( 'wp-color-picker' );
@@ -97,70 +98,402 @@ class WPSunshine_Confetti_Options {
 	}
 
 	/**
-	 * Get admin JavaScript for the instances tab
+	 * Get admin JavaScript for the instances tab.
+	 *
+	 * The sample payload for each style comes from the style catalog, so a new
+	 * style previews correctly without anything being added here.
 	 */
 	private function get_admin_script() {
+
+		$catalog = wp_json_encode( WPSunshine_Confetti_Styles::get_js_catalog() );
+
+		// The premium version binds its own preview handler, which reads every
+		// option off the form. Free has nothing to read, so it previews the
+		// chosen style on its own.
+		$bind_preview = $this->is_premium() ? 'false' : 'true';
+
+		$preview_label = wp_json_encode( __( 'Preview %s', 'confetti' ) );
+		$copied_label  = wp_json_encode( __( 'Copied!', 'confetti' ) );
+
 		return "
+		var wps_confetti_catalog = {$catalog};
+
 		jQuery( document ).ready(function($) {
 
-			$( '.wps-confetti-sample' ).on( 'click', function(){
+			// Fire one style with nothing but its own defaults.
+			function wps_confetti_sample( style_id ) {
 
-				var sample_style = $( this ).data( 'style' );
+				var style = wps_confetti_catalog[ style_id ];
 
-				if ( sample_style == 'cannon' ) {
-
-					var defaults = {
-						style: 'cannon'
-					};
-
-				} else if ( sample_style == 'cannon_real' ) {
-
-					var defaults = {
-						style: 'cannon_real',
-						particleCount: 200
-					};
-
-				} else if ( sample_style == 'cannon_repeat' ) {
-
-					var defaults = {
-						style: 'cannon_repeat'
-					};
-
-				} else if ( sample_style == 'fireworks' ) {
-
-					var defaults = {
-						style: 'fireworks'
-					};
-
-				} else if ( sample_style == 'falling' ) {
-
-					var defaults = {
-						style: 'falling',
-						colors: ['#26ccff','#a25afd','#ff5e7e','#88ff5a','#fcff42','#ffa62d','#ff36ff']
-					};
-
-				} else if ( sample_style == 'burst' ) {
-
-					var defaults = {
-						style: 'burst'
-					};
-
-				} else if ( sample_style == 'school' ) {
-
-					var defaults = {
-						style: 'school',
-					};
-
+				if ( ! style || ! style.available ) {
+					return;
 				}
 
-				wps_run_confetti( defaults );
+				var sample = jQuery.extend( { style: style_id }, style.defaults || {} );
 
+				jQuery.each( style.fields || {}, function( field_id, field ){
+					sample[ field_id ] = field['default'];
+				});
+
+				if ( typeof WPSConfetti !== 'undefined' ) {
+					WPSConfetti.reset();
+				}
+
+				wps_run_confetti( sample );
+			}
+
+			// Preview a style from its card.
+			$( document ).on( 'click', '.wps-confetti-sample', function(){
+				wps_confetti_sample( $( this ).data( 'style' ) );
 				return false;
+			});
 
+			if ( {$bind_preview} ) {
+				$( document ).on( 'click', '#wps-confetti-preview', function(){
+					wps_confetti_sample( $( 'input[name=\"style\"]:checked' ).val() );
+					return false;
+				});
+			}
+
+			// Show only the options the chosen style actually uses, and keep
+			// the card and the preview button in step with it.
+			function wps_confetti_sync_options() {
+
+				var style_id = $( 'input[name=\"style\"]:checked' ).val();
+				var style    = wps_confetti_catalog[ style_id ] || {};
+
+				$( '#wps-confetti-display .wps-option-row' ).each(function(){
+					var applies = $( this ).hasClass( 'all' ) || $( this ).hasClass( style_id );
+					$( this ).toggleClass( 'is-other-style', ! applies ).toggle( applies );
+				});
+
+				// Hide a section only when this style has nothing to put in it.
+				// This has to go by the style class rather than :visible: these
+				// sections start collapsed, so their rows are never visible and
+				// they would hide themselves the moment the page loaded.
+				$( '.wps-panel--collapsible' ).each(function(){
+					var rows = $( this ).find( '.wps-option-row' );
+					$( this ).toggle( rows.length === 0 || rows.not( '.is-other-style' ).length > 0 );
+				});
+
+				$( '.wps-style-card' ).removeClass( 'is-selected' );
+				$( 'input[name=\"style\"]:checked' ).closest( '.wps-style-card' ).addClass( 'is-selected' );
+
+				if ( style.name ) {
+					$( '#wps-confetti-preview' ).text( {$preview_label}.replace( '%s', style.name ) );
+				}
+			}
+
+			$( document ).on( 'change', 'input[name=\"style\"]', wps_confetti_sync_options );
+			wps_confetti_sync_options();
+
+			// Keep each slider and its number box showing the same value.
+			$( document ).on( 'input', '.wps-slider input[type=\"range\"]', function(){
+				$( this ).siblings( '.wps-slider__value' ).val( $( this ).val() );
+			});
+			$( document ).on( 'input', '.wps-slider__value', function(){
+				$( this ).siblings( 'input[type=\"range\"]' ).val( $( this ).val() );
+			});
+
+			// Behavior and Advanced Physics open and close.
+			$( document ).on( 'click', '.wps-panel__toggle', function(){
+				var panel = $( this ).closest( '.wps-panel' );
+				var open  = ! panel.hasClass( 'is-open' );
+				panel.toggleClass( 'is-open', open );
+				$( this ).attr( 'aria-expanded', open ? 'true' : 'false' );
+				panel.children( '.wps-panel__body' ).slideToggle( 150 );
+				return false;
+			});
+
+			// The instance menu.
+			$( document ).on( 'click', '.wps-instance-menu-toggle', function(e){
+				e.preventDefault();
+				e.stopPropagation();
+				var menu = $( this ).siblings( '.wps-instance-menu' );
+				$( '.wps-instance-menu' ).not( menu ).hide();
+				menu.toggle();
+			});
+
+			$( document ).on( 'click', function(){
+				$( '.wps-instance-menu' ).hide();
+			});
+
+			// Rename shows the name field rather than sending you elsewhere.
+			$( document ).on( 'click', '.wps-instance-rename-link', function(e){
+				e.preventDefault();
+				$( '.wps-instance-menu' ).hide();
+				$( '#wps-instance-rename' ).show().find( 'input' ).trigger( 'focus' ).trigger( 'select' );
+			});
+
+			$( document ).on( 'click', '.wps-copy-instance-shortcode', function(e){
+				e.preventDefault();
+
+				var link = $( this );
+				var text = link.data( 'shortcode' );
+				var done = function() {
+					var original = link.text();
+					link.text( {$copied_label} );
+					setTimeout(function(){
+						link.text( original );
+						$( '.wps-instance-menu' ).hide();
+					}, 1500 );
+				};
+
+				if ( navigator.clipboard && window.isSecureContext ) {
+					navigator.clipboard.writeText( text ).then( done );
+				} else {
+					var temp = $( '<textarea>' ).val( text ).appendTo( 'body' ).select();
+					document.execCommand( 'copy' );
+					temp.remove();
+					done();
+				}
 			});
 
 		});
 		";
+	}
+
+	/**
+	 * Open a settings panel: the white box with a heading.
+	 *
+	 * @param string $id    Panel ID, used for the element ID.
+	 * @param string $title Panel heading.
+	 * @param array  $args  meta: small grey text beside the heading. badge: text
+	 *                      for a premium pill. locked: dim the whole body. head:
+	 *                      extra markup for the right of the heading row.
+	 */
+	public static function panel_open( $id, $title, $args = array() ) {
+
+		$args = wp_parse_args(
+			$args,
+			array(
+				'badge'       => '',
+				'locked'      => false,
+				'head'        => '',
+				'collapsible' => false,
+				'open'        => true,
+			)
+		);
+
+		$open = ! $args['collapsible'] || $args['open'];
+
+		$classes = 'wps-panel';
+		if ( $args['locked'] ) {
+			$classes .= ' is-locked';
+		}
+		if ( $args['collapsible'] ) {
+			$classes .= ' wps-panel--collapsible';
+		}
+		if ( $args['collapsible'] && $open ) {
+			$classes .= ' is-open';
+		}
+
+		// A collapsible head is the control that opens the panel, so it has to
+		// be a real button rather than a div with a click handler on it.
+		$head_tag  = $args['collapsible'] ? 'button' : 'div';
+		$head_attr = $args['collapsible']
+			? ' type="button" class="wps-panel__head wps-panel__toggle" aria-expanded="' . ( $open ? 'true' : 'false' ) . '"'
+			: ' class="wps-panel__head"';
+		?>
+		<section class="<?php echo esc_attr( $classes ); ?>" id="wps-panel-<?php echo esc_attr( $id ); ?>">
+			<<?php echo $head_tag . $head_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+				<?php if ( $args['collapsible'] ) : ?>
+					<span class="wps-panel__arrow" aria-hidden="true"></span>
+				<?php endif; ?>
+				<h2 class="wps-panel__title"><?php echo esc_html( $title ); ?></h2>
+				<?php if ( $args['badge'] ) : ?>
+					<span class="wps-badge"><?php echo esc_html( $args['badge'] ); ?></span>
+				<?php endif; ?>
+				<?php echo $args['head']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</<?php echo $head_tag; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+			<div class="wps-panel__body"<?php echo $open ? '' : ' style="display:none;"'; ?>>
+		<?php
+	}
+
+	/**
+	 * Close a settings panel.
+	 */
+	public static function panel_close() {
+		echo '</div></section>';
+	}
+
+	/**
+	 * Open one option row. The classes are the styles that offer the option,
+	 * which is what the show/hide script matches against.
+	 *
+	 * @param string $label   Row label.
+	 * @param array  $styles  Style IDs this row belongs to, or array( 'all' ).
+	 */
+	public static function option_row_open( $label, $styles ) {
+		?>
+		<div class="wps-option-row <?php echo esc_attr( implode( ' ', $styles ) ); ?>">
+			<div class="wps-option-row__label"><?php echo esc_html( $label ); ?></div>
+			<div class="wps-option-row__control">
+		<?php
+	}
+
+	/**
+	 * Close one option row.
+	 *
+	 * @param string $description Help text shown under the control.
+	 */
+	public static function option_row_close( $description = '' ) {
+		if ( $description ) {
+			echo '<p class="description">' . esc_html( $description ) . '</p>';
+		}
+		echo '</div></div>';
+	}
+
+	/**
+	 * A number option: a slider and a number box that track each other.
+	 *
+	 * Both the real premium control and the free version's locked preview use
+	 * this, so they can never look like two different things.
+	 *
+	 * @param string $option_id Option ID, used as the field name.
+	 * @param array  $option    Option definition from options.json.
+	 * @param mixed  $value     Current value.
+	 * @param bool   $readonly  Whether the visitor may change it.
+	 */
+	public static function render_number_option( $option_id, $option, $value, $readonly = false ) {
+
+		$default   = isset( $option['default'] ) ? $option['default'] : '';
+		$has_range = ( ! isset( $option['slider'] ) || $option['slider'] ) && isset( $option['min'] ) && isset( $option['max'] );
+
+		$attributes = '';
+		foreach ( array( 'min', 'max', 'step' ) as $attribute ) {
+			if ( isset( $option[ $attribute ] ) ) {
+				$attributes .= ' ' . $attribute . '="' . esc_attr( $option[ $attribute ] ) . '"';
+			}
+		}
+
+		echo '<div class="wps-slider' . ( $has_range ? '' : ' wps-slider--no-range' ) . '">';
+
+		if ( $has_range ) {
+			?>
+			<input type="range"<?php echo $attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> value="<?php echo esc_attr( $value ); ?>" <?php disabled( $readonly ); ?> tabindex="-1" aria-hidden="true" />
+			<?php
+		}
+		?>
+		<input
+			class="wps-slider__value"
+			name="<?php echo esc_attr( $option_id ); ?>"
+			type="number"
+			<?php echo $attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			value="<?php echo esc_attr( $value ); ?>"
+			data-default="<?php echo esc_attr( $default ); ?>"
+			<?php echo $readonly ? 'readonly' : ''; ?>
+		/>
+		<?php
+		if ( ! empty( $option['suffix'] ) ) {
+			echo '<span class="wps-slider__suffix">' . esc_html( $option['suffix'] ) . '</span>';
+		}
+		echo '</div>';
+	}
+
+	/**
+	 * The built in shapes, so the real control and the locked preview in the
+	 * free version always offer the same list.
+	 *
+	 * @return array
+	 */
+	public static function get_shape_choices() {
+		return array(
+			'square'   => array(
+				'label' => __( 'Square', 'confetti' ),
+				'icon'  => '■',
+			),
+			'circle'   => array(
+				'label' => __( 'Circle', 'confetti' ),
+				'icon'  => '●',
+			),
+			'star'     => array(
+				'label' => __( 'Star', 'confetti' ),
+				'icon'  => '★',
+			),
+			'triangle' => array(
+				'label' => __( 'Triangle', 'confetti' ),
+				'icon'  => '▲',
+			),
+		);
+	}
+
+	/**
+	 * Output the grid of style choices.
+	 *
+	 * Styles this install cannot run are still shown, locked, so people can
+	 * see what upgrading would give them.
+	 *
+	 * @param array $instance Current instance settings.
+	 */
+	public function style_grid( $instance ) {
+
+		$selected = ! empty( $instance['style'] ) ? $instance['style'] : 'cannon';
+
+		echo '<div class="wps-style-grid">';
+
+		foreach ( WPSunshine_Confetti_Styles::get_all() as $style_id => $style ) {
+
+			$available = WPSunshine_Confetti_Styles::is_available( $style_id );
+
+			$classes = array( 'wps-style-card' );
+			if ( ! $available ) {
+				$classes[] = 'is-locked';
+			}
+			if ( $available && $selected === $style_id ) {
+				$classes[] = 'is-selected';
+			}
+			?>
+			<label class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" data-name="<?php echo esc_attr( $style['name'] ); ?>" title="<?php echo esc_attr( $style['blurb'] ); ?>">
+				<input type="radio" name="style" value="<?php echo esc_attr( $style_id ); ?>" <?php checked( $selected, $style_id ); ?> <?php disabled( ! $available ); ?> />
+				<span class="wps-style-card__name"><?php echo esc_html( $style['name'] ); ?></span>
+				<?php if ( ! $available ) : ?>
+					<span class="wps-style-card__lock"><?php _e( 'Premium', 'confetti' ); ?></span>
+				<?php else : ?>
+					<span class="wps-style-card__state"><?php _e( 'Selected', 'confetti' ); ?></span>
+					<a href="#" class="wps-confetti-sample" data-style="<?php echo esc_attr( $style_id ); ?>"><?php _e( 'Preview', 'confetti' ); ?></a>
+				<?php endif; ?>
+			</label>
+			<?php
+		}
+
+		echo '</div>';
+
+		do_action( 'wps_confetti_after_style_grid', $instance, $selected );
+	}
+
+	/**
+	 * Output the extra fields a style needs, such as the word to spell out.
+	 * Each one only shows while its own style is chosen.
+	 *
+	 * @param array $instance Current instance settings.
+	 */
+	public function style_fields( $instance ) {
+
+		foreach ( WPSunshine_Confetti_Styles::get_available() as $style_id => $style ) {
+
+			if ( empty( $style['fields'] ) ) {
+				continue;
+			}
+
+			foreach ( $style['fields'] as $field_id => $field ) {
+
+				$value = isset( $instance[ $field_id ] ) ? $instance[ $field_id ] : $field['default'];
+
+				$this->option_row_open( $field['label'], array( $style_id ) );
+				?>
+					<input
+						type="text"
+						name="<?php echo esc_attr( $field_id ); ?>"
+						value="<?php echo esc_attr( $value ); ?>"
+						class="regular-text"
+						<?php echo isset( $field['maxlength'] ) ? 'maxlength="' . absint( $field['maxlength'] ) . '"' : ''; ?>
+						data-default="<?php echo esc_attr( $field['default'] ); ?>"
+					/>
+				<?php
+				$this->option_row_close( isset( $field['description'] ) ? $field['description'] : '' );
+			}
+		}
 	}
 
 	/**
@@ -255,8 +588,15 @@ class WPSunshine_Confetti_Options {
 
 			<div class="wrap wps-wrap">
 				<h2></h2>
-				<form method="post" action="<?php echo admin_url( 'options-general.php?page=wps_confetti&tab=' . $this->tab ); ?>">
-				<?php wp_nonce_field( 'wps_confetti_options', 'wps_confetti_options' ); ?>
+
+				<?php
+				// Conditionally wrap in form - addons tab uses AJAX forms so no outer form needed
+				$needs_form_wrapper = ! in_array( $this->tab, array( 'addons' ), true );
+				if ( $needs_form_wrapper ) {
+					?>
+					<form method="post" action="<?php echo admin_url( 'options-general.php?page=wps_confetti&tab=' . $this->tab ); ?>">
+					<?php wp_nonce_field( 'wps_confetti_options', 'wps_confetti_options' ); ?>
+				<?php } ?>
 
 				<?php do_action( 'wps_confetti_options_before', $options, $this->tab ); ?>
 
@@ -264,13 +604,9 @@ class WPSunshine_Confetti_Options {
 
 				<?php do_action( 'wps_confetti_options_after', $options, $this->tab ); ?>
 
-				<?php if ( $this->save_button ) : ?>
-					<p id="wps-settings-submit">
-						<input type="submit" value="<?php _e( 'Save Changes', 'confetti' ); ?>" class="button button-primary" />
-					</p>
-				<?php endif; ?>
-
+				<?php if ( $needs_form_wrapper ) { ?>
 				</form>
+				<?php } ?>
 			</div>
 
 		</div>
@@ -298,95 +634,182 @@ class WPSunshine_Confetti_Options {
 		// Get current instance settings
 		$instance = $instances[ $current_instance_id ];
 
-		// Always show instance tabs area with add button
+		if ( empty( $instance['style'] ) ) {
+			$instance['style'] = 'cannon';
+		}
+
+		$this->instance_nav( $instances, $current_instance_id, $instance );
 		?>
-		<!-- Instance Tabs -->
-		<ul class="subsubsub">
-			<?php
-			$instance_count  = 0;
-			$total_instances = count( $instances );
-			if ( $total_instances > 1 ) :
-				foreach ( $instances as $instance_id => $instance_data ) :
-					$instance_count++;
-					$is_last = ( $instance_count === $total_instances );
-					?>
-				<li>
-					<a href="<?php echo esc_url( admin_url( 'options-general.php?page=wps_confetti&tab=instances&editing_instance=' . $instance_id ) ); ?>" class="<?php echo ( $current_instance_id === $instance_id ) ? 'current' : ''; ?>">
-						<?php echo esc_html( $instance_data['name'] ); ?>
-					</a>
-					<?php
-					if ( ! $is_last ) :
-						?>
-						 | <?php endif; ?>
-						<?php
-						// Hook for instance actions (premium will add dropdown here)
-						do_action( 'wps_confetti_instance_tab_actions', $instance_id, $instance_data );
-						?>
-					</li>
-					<?php endforeach; ?>
-			<?php endif; ?>
-			
-			<!-- Add Instance Button -->
-			<li>
+
+		<input type="hidden" name="editing_instance" value="<?php echo esc_attr( $current_instance_id ); ?>" />
+
+		<div class="wps-layout">
+			<div class="wps-layout__main" id="wps-confetti-display">
+
 				<?php
-				if ( $total_instances > 1 ) :
-					?>
-					 | <?php endif; ?>
-					 <!--
-					<a href="<?php echo wp_nonce_url( admin_url( 'options-general.php?page=wps_confetti&tab=instances&add_instance=1' ), 'add_instance' ); ?>" class="wps-add-instance-btn" id="wps-add-instance">
-						<?php _e( '+ Add Instance', 'confetti' ); ?>
-					</a>
-				-->
-			</li>
-		</ul>
+				$this->panel_open( 'style', __( 'Style', 'confetti' ), array( 'collapsible' => true ) );
+				$this->style_grid( $instance );
+				$this->panel_close();
 
-		<input type='hidden' name='editing_instance' value="<?php echo esc_attr( $current_instance_id ); ?>" / >
+				// Appearance comes before behavior: how it looks is the first
+				// thing people want to change.
+				do_action( 'wps_confetti_instance_panels', $instance, $current_instance_id );
 
-		<?php if ( $current_instance_id !== 'default' && count( $instances ) > 1 ) : ?>
-		<table class="form-table">
-			<tr>
-				<th><?php _e( 'Instance Name', 'confetti' ); ?></th>
-				<td>
-					<input type="text" name="instance_name" value="<?php echo esc_attr( $instance['name'] ); ?>" class="regular-text" />
-					<p class="description"><?php _e( 'Use this ID in your shortcode:', 'confetti' ); ?> <code>[confetti instance="<?php echo esc_html( $current_instance_id ); ?>"]</code></p>
-				</td>
-			</tr>
-		</table>
-		<?php endif; ?>
+				// Behavior and physics are their own sections, both closed to
+				// start with so the page opens short.
+				$premium_badge = $this->is_premium() ? '' : __( 'Premium', 'confetti' );
 
+				$this->panel_open(
+					'behavior',
+					__( 'Behavior', 'confetti' ),
+					array(
+						'collapsible' => true,
+						'open'        => false,
+						'badge'       => $premium_badge,
+					)
+				);
+				$this->style_fields( $instance );
+				do_action( 'wps_confetti_options_behavior', $instance, $current_instance_id );
+				$this->panel_close();
 
-		<table class="form-table" id="wps-confetti-display">
-			<tr class="all">
-				<th><?php _e( 'Style', 'confetti' ); ?></th>
-				<td>
-					<p>
-						<?php
-						if ( empty( $instance['style'] ) ) {
-							$instance['style'] = '';
-						}
-						?>
-						<label><input type="radio" name="style" value="cannon" <?php checked( $instance['style'], 'cannon' ); ?>/> <?php _e( 'Basic Cannon', 'confetti' ); ?></label> <a href="#" class="wps-confetti-sample" data-style="cannon" style="font-size: 12px;"><?php _e( 'See sample', 'confetti' ); ?></a><br />
-						<label><input type="radio" name="style" value="cannon_real" <?php checked( $instance['style'], 'cannon_real' ); ?>/> <?php _e( 'Realistic Cannon', 'confetti' ); ?></label> <a href="#" class="wps-confetti-sample" data-style="cannon_real" style="font-size: 12px;"><?php _e( 'See sample', 'confetti' ); ?></a><br />
-						<label><input type="radio" name="style" value="cannon_repeat" <?php checked( $instance['style'], 'cannon_repeat' ); ?>/> <?php _e( 'Repeating Cannon', 'confetti' ); ?></label> <a href="#" class="wps-confetti-sample" data-style="cannon_repeat" style="font-size: 12px;"><?php _e( 'See sample', 'confetti' ); ?></a><br />
-						<label><input type="radio" name="style" value="fireworks" <?php checked( $instance['style'], 'fireworks' ); ?>/> <?php _e( 'Fireworks', 'confetti' ); ?></label> <a href="#" class="wps-confetti-sample" data-style="fireworks" style="font-size: 12px;"><?php _e( 'See sample', 'confetti' ); ?></a> <br />
-						<label><input type="radio" name="style" value="burst" <?php checked( $instance['style'], 'burst' ); ?>/> <?php _e( 'Burst', 'confetti' ); ?></label> <a href="#" class="wps-confetti-sample" data-style="burst" style="font-size: 12px;"><?php _e( 'See sample', 'confetti' ); ?></a> <br />
-						<label><input type="radio" name="style" value="school" <?php checked( $instance['style'], 'school' ); ?>/> <?php _e( 'School Pride', 'confetti' ); ?></label> <a href="#" class="wps-confetti-sample" data-style="school" style="font-size: 12px;"><?php _e( 'See sample', 'confetti' ); ?></a> <br />
-						<label><input type="radio" name="style" value="falling" <?php checked( $instance['style'], 'falling' ); ?>/> <?php _e( 'Falling', 'confetti' ); ?></label> <a href="#" class="wps-confetti-sample" data-style="falling" style="font-size: 12px;"><?php _e( 'See sample', 'confetti' ); ?></a> <br />
-					</p>
-				</td>
-			</tr>
-			
-			<?php
-			// Hook for premium to add additional customization options
-			do_action( 'wps_confetti_instance_options', $instance, $current_instance_id );
-			?>
-		</table>
+				$this->panel_open(
+					'physics',
+					__( 'Advanced Physics', 'confetti' ),
+					array(
+						'collapsible' => true,
+						'open'        => false,
+						'badge'       => $premium_badge,
+					)
+				);
+				do_action( 'wps_confetti_options_physics', $instance, $current_instance_id );
+				$this->panel_close();
+
+				$this->save_bar( $instance );
+				?>
+
+			</div>
+
+			<div class="wps-layout__side">
+				<?php do_action( 'wps_confetti_instance_sidebar', $instance, $current_instance_id ); ?>
+			</div>
+		</div>
 
 		<?php
-		// Hook for premium to add preview button and JavaScript
 		do_action( 'wps_confetti_after_instance_options', $instance, $current_instance_id );
-		?>
+	}
 
+	/**
+	 * The row of instance tabs, with the menu on the one being edited and the
+	 * add button on the end.
+	 *
+	 * @param array  $instances           Every instance.
+	 * @param string $current_instance_id Instance being edited.
+	 * @param array  $instance            Settings of the instance being edited.
+	 */
+	private function instance_nav( $instances, $current_instance_id, $instance ) {
+
+		$add_url = wp_nonce_url( admin_url( 'options-general.php?page=wps_confetti&tab=instances&add_instance=1' ), 'add_instance' );
+		?>
+		<div class="wps-instance-nav">
+
+			<div class="wps-instance-tabs">
+				<?php foreach ( $instances as $instance_id => $instance_data ) : ?>
+					<?php $is_current = ( $current_instance_id === $instance_id ); ?>
+					<div class="wps-instance-tab<?php echo $is_current ? ' is-current' : ''; ?>">
+						<a href="<?php echo esc_url( admin_url( 'options-general.php?page=wps_confetti&tab=instances&editing_instance=' . $instance_id ) ); ?>" class="wps-instance-tab__name">
+							<?php echo esc_html( $instance_data['name'] ); ?>
+						</a>
+						<?php if ( $is_current ) : ?>
+							<button type="button" class="wps-instance-menu-toggle" aria-label="<?php esc_attr_e( 'Instance actions', 'confetti' ); ?>">&hellip;</button>
+							<div class="wps-instance-menu">
+								<?php do_action( 'wps_confetti_instance_menu_before', $instance_id, $instance_data ); ?>
+								<a href="#" class="wps-copy-instance-shortcode" data-shortcode="<?php echo esc_attr( $this->instance_shortcode( $instance_id ) ); ?>">
+									<span class="dashicons dashicons-shortcode"></span> <?php _e( 'Copy shortcode', 'confetti' ); ?>
+								</a>
+								<?php do_action( 'wps_confetti_instance_menu', $instance_id, $instance_data ); ?>
+							</div>
+						<?php endif; ?>
+					</div>
+				<?php endforeach; ?>
+			</div>
+
+			<?php if ( count( $instances ) < WPS_Confetti()->get_max_instances() ) : ?>
+				<a href="<?php echo esc_url( $add_url ); ?>" class="wps-add-instance-btn" id="wps-add-instance"><?php _e( '+ Add Instance', 'confetti' ); ?></a>
+			<?php else : ?>
+				<span class="wps-add-instance-btn is-locked" id="wps-add-instance"
+				data-upgrade-title="<?php esc_attr_e( 'Run more than one confetti', 'confetti' ); ?>"
+				data-upgrade-sub="<?php esc_attr_e( 'Unlimited instances are part of Premium.', 'confetti' ); ?>">
+					<?php _e( '+ Add Instance', 'confetti' ); ?>
+					<span class="wps-badge"><?php _e( 'Premium', 'confetti' ); ?></span>
+				</span>
+			<?php endif; ?>
+
+		</div>
+
+		<div class="wps-instance-rename" id="wps-instance-rename" style="display:none;">
+			<label for="wps-instance-name"><?php _e( 'Instance name', 'confetti' ); ?></label>
+			<input type="text" id="wps-instance-name" name="instance_name" value="<?php echo esc_attr( $instance['name'] ); ?>" class="regular-text" />
+			<span class="description"><?php _e( 'Save changes to keep the new name.', 'confetti' ); ?></span>
+		</div>
+		<?php
+	}
+
+	/**
+	 * The shortcode that runs one instance.
+	 *
+	 * @param string $instance_id Instance ID.
+	 * @return string
+	 */
+	public function instance_shortcode( $instance_id ) {
+		if ( 'default' === $instance_id ) {
+			return '[confetti]';
+		}
+		return '[confetti instance="' . $instance_id . '"]';
+	}
+
+	/**
+	 * Save button, and when this instance was last saved.
+	 *
+	 * @param array $instance Current instance settings.
+	 */
+	public function save_bar( $instance ) {
+		?>
+		<div class="wps-save-bar">
+			<input type="submit" value="<?php esc_attr_e( 'Save Changes', 'confetti' ); ?>" class="button button-primary" />
+			<?php if ( ! empty( $instance['updated'] ) ) : ?>
+				<span class="wps-save-bar__time">
+					<?php
+					/* translators: %s: how long ago the instance was saved, such as "2 minutes". */
+					printf( esc_html__( 'Last saved %s ago', 'confetti' ), esc_html( human_time_diff( $instance['updated'] ) ) );
+					?>
+				</span>
+			<?php endif; ?>
+			<?php do_action( 'wps_confetti_save_bar', $instance ); ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * The preview button at the top of the sidebar.
+	 *
+	 * @param array  $instance            Current instance settings.
+	 * @param string $current_instance_id Instance being edited.
+	 */
+	public function sidebar_preview( $instance, $current_instance_id ) {
+
+		$style_id = ! empty( $instance['style'] ) ? $instance['style'] : 'cannon';
+		$style    = WPSunshine_Confetti_Styles::get( $style_id );
+		$name     = $style ? $style['name'] : $style_id;
+		?>
+		<div class="wps-card wps-card--preview">
+			<button type="button" class="button button-primary" id="wps-confetti-preview">
+				<?php
+				/* translators: %s: name of the chosen confetti style. */
+				printf( esc_html__( 'Preview %s', 'confetti' ), esc_html( $name ) );
+				?>
+			</button>
+			<p class="description"><?php _e( 'Plays full screen, exactly as visitors see it.', 'confetti' ); ?></p>
+		</div>
 		<?php
 	}
 
@@ -394,7 +817,6 @@ class WPSunshine_Confetti_Options {
 	 * Display integrations tab (promo for free version)
 	 */
 	public function integrations_promo_tab() {
-		$this->save_button = false;
 		?>
 		<div class="wps-promo">
 			<h2><?php _e( 'Trigger Confetti with Popular Plugins', 'confetti' ); ?></h2>
@@ -415,7 +837,7 @@ class WPSunshine_Confetti_Options {
 			<ul>
 				<li><?php _e( 'More advanced confetti styling options', 'confetti' ); ?></li>
 				<li><?php _e( 'Enable/disable integrations individually', 'confetti' ); ?></li>
-				<!-- <li><?php _e( 'Choose which confetti instance to use per integration', 'confetti' ); ?></li> -->
+				<li><?php _e( 'Choose which confetti instance to use per integration', 'confetti' ); ?></li>
 			</ul>
 
 			<div style="margin-top: 30px;">
@@ -442,32 +864,35 @@ class WPSunshine_Confetti_Options {
 			// Copy shortcode to clipboard
 			$( '.wps-copy-shortcode' ).on( 'click', function(){
 				var $button = $( this );
-				var targetId = $button.data( 'clipboard-target' );
-				var $target = $( targetId );
-				var textToCopy = $target.text();
+				var $icon = $button.find( '.dashicons' );
+				var textToCopy = $( $button.data( 'clipboard-target' ) ).text();
 
-				// Use modern Clipboard API if available
-				if ( navigator.clipboard && window.isSecureContext ) {
-					navigator.clipboard.writeText( textToCopy ).then( function() {
-						var originalText = $button.text();
-						$button.text( '<?php _e( 'Copied!', 'confetti' ); ?>' );
-						setTimeout( function() {
-							$button.text( originalText );
-						}, 2000 );
-					});
-				} else {
-					// Fallback for older browsers
+				// The icon turns into a green tick, then back again.
+				function copied() {
+					$button.addClass( 'is-copied' );
+					$icon.removeClass( 'dashicons-admin-page' ).addClass( 'dashicons-yes' );
+					setTimeout( function() {
+						$button.removeClass( 'is-copied' );
+						$icon.removeClass( 'dashicons-yes' ).addClass( 'dashicons-admin-page' );
+					}, 2000 );
+				}
+
+				// Older browsers, and the newer one when it refuses - it turns
+				// the request down whenever the document is not focused, and
+				// without this that failure was silent.
+				function copyTheOldWay() {
 					var $temp = $( '<textarea>' );
 					$( 'body' ).append( $temp );
 					$temp.val( textToCopy ).select();
 					document.execCommand( 'copy' );
 					$temp.remove();
+					copied();
+				}
 
-					var originalText = $button.text();
-					$button.text( '<?php _e( 'Copied!', 'confetti' ); ?>' );
-					setTimeout( function() {
-						$button.text( originalText );
-					}, 2000 );
+				if ( navigator.clipboard && window.isSecureContext ) {
+					navigator.clipboard.writeText( textToCopy ).then( copied, copyTheOldWay );
+				} else {
+					copyTheOldWay();
 				}
 
 				return false;
@@ -494,7 +919,10 @@ class WPSunshine_Confetti_Options {
 					<p><?php _e( 'Use this shortcode to trigger confetti on any page or post:', 'confetti' ); ?></p>
 					<div class="wps-shortcode-box">
 						<code id="wps-confetti-shortcode">[confetti]</code>
-						<button type="button" class="button button-secondary wps-copy-shortcode" data-clipboard-target="#wps-confetti-shortcode"><?php _e( 'Copy', 'confetti' ); ?></button>
+						<button type="button" class="wps-copy-shortcode" data-clipboard-target="#wps-confetti-shortcode" title="<?php esc_attr_e( 'Copy shortcode', 'confetti' ); ?>">
+							<span class="dashicons dashicons-admin-page"></span>
+							<span class="screen-reader-text"><?php _e( 'Copy shortcode', 'confetti' ); ?></span>
+						</button>
 					</div>
 				</td>
 			</tr>
@@ -507,7 +935,7 @@ class WPSunshine_Confetti_Options {
 							<span class="wps-description"><?php _e( 'Example:', 'confetti' ); ?> <code>[confetti onload="true"]</code></span>
 						</li>
 						<li>
-							<code>inview</code> - <?php _e( 'Set to "true" to trigger confetti when the element scrolls into view (Premium only). Default: false', 'confetti' ); ?><br />
+							<code>inview</code> - <?php _e( 'Set to "true" to trigger confetti when the element scrolls into view. Default: false', 'confetti' ); ?><br />
 							<span class="wps-description"><?php _e( 'Example:', 'confetti' ); ?> <code>[confetti onload="false" inview="true"]</code></span>
 						</li>
 					<?php if ( WPS_Confetti()->is_premium() ) : ?>
@@ -589,13 +1017,32 @@ class WPSunshine_Confetti_Options {
 			}
 		}
 
-		// Update instance name if provided and not default
-		if ( $editing_instance_id !== 'default' && isset( $post_data['instance_name'] ) ) {
+		// Update instance name if one was posted. An empty box is ignored so a
+		// cleared field cannot leave a tab with no label on it.
+		if ( ! empty( $post_data['instance_name'] ) ) {
 			$instances[ $editing_instance_id ]['name'] = sanitize_text_field( $post_data['instance_name'] );
 		}
 
-		// Save style
-		$instances[ $editing_instance_id ]['style'] = isset( $post_data['style'] ) ? sanitize_text_field( $post_data['style'] ) : '';
+		$instances[ $editing_instance_id ]['updated'] = time();
+
+		// Save style. Anything this install cannot run is refused rather than
+		// stored, so a posted premium style on a free site does not stick.
+		$style = isset( $post_data['style'] ) ? sanitize_text_field( $post_data['style'] ) : '';
+		if ( $style && ! WPSunshine_Confetti_Styles::is_available( $style ) ) {
+			$style = WPSunshine_Confetti_Styles::get_fallback();
+		}
+		$instances[ $editing_instance_id ]['style'] = $style;
+
+		// Save any extra fields the chosen style defines, such as the word for
+		// Confetti Type.
+		$style_data = WPSunshine_Confetti_Styles::get( $style );
+		if ( $style_data && ! empty( $style_data['fields'] ) ) {
+			foreach ( array_keys( $style_data['fields'] ) as $field_id ) {
+				if ( isset( $post_data[ $field_id ] ) ) {
+					$instances[ $editing_instance_id ][ $field_id ] = sanitize_text_field( $post_data[ $field_id ] );
+				}
+			}
+		}
 
 		// Save back to options
 		$options['instances'] = $instances;

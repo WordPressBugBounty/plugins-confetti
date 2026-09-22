@@ -2,6 +2,11 @@
 /**
  * Promotional functions to get users to upgrade.
  *
+ * Everything a free user sees about premium is built from the same data the
+ * premium version runs on: the style catalog, options.json and the integration
+ * list. No counts or feature lists are typed out by hand, so this page cannot
+ * fall out of date with what premium actually gives you.
+ *
  * @package WPSConfetti\promos
  * @version 1.0
  */
@@ -9,49 +14,458 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * The styles this site cannot run yet.
+ *
+ * @return array Style definitions keyed by ID.
+ */
+function wps_confetti_locked_styles() {
+	$available = WPSunshine_Confetti_Styles::get_available();
+	return array_diff_key( WPSunshine_Confetti_Styles::get_all(), $available );
+}
+
+/**
+ * A few names from a list, for "Vortex, Grand Finale, Confetti Type and more".
+ *
+ * @param array $names How many names there are to pick from.
+ * @param int   $count How many to name.
+ * @return string
+ */
+function wps_confetti_name_a_few( $names, $count = 3 ) {
+	return implode( ', ', array_slice( array_values( $names ), 0, $count ) );
+}
+
+/**
+ * The same thing, but for integrations, where the alphabetically first names
+ * are not the ones people recognise. Anything on the headline list that is
+ * really registered goes first, then whatever else is in the list, so this
+ * still cannot name a plugin Confetti does not actually integrate with.
+ *
+ * @param array $names Every integration name.
+ * @param int   $count How many to name.
+ * @return string
+ */
+function wps_confetti_name_a_few_integrations( $names, $count = 3 ) {
+
+	$headline = array( 'WooCommerce', 'WPForms', 'Gravity Forms', 'LearnDash', 'Easy Digital Downloads', 'Elementor' );
+	$known    = array_values( array_intersect( $headline, $names ) );
+	$rest     = array_values( array_diff( $names, $known ) );
+
+	return wps_confetti_name_a_few( array_merge( $known, $rest ), $count );
+}
+
+/**
  * Show the upgrade notice in header.
  */
 function wps_confetti_header_upgrade() {
-	echo '<a href="https://www.wpsunshine.com/plugins/confetti/?utm_source=plugin&utm_medium=button&utm_content=upgrade&utm_campaign=plugin_upgrade" target="_blank" class="wps-button" id="wps-confetti-header-upgrade">' . __( 'Upgrade to premium!', 'confetti' ) . '</a>';
+	echo '<a href="https://www.wpsunshine.com/plugins/confetti/?utm_source=plugin&utm_medium=button&utm_content=upgrade&utm_campaign=plugin_upgrade" target="_blank" class="wps-button" id="wps-confetti-header-upgrade">' . esc_html__( 'Upgrade to premium!', 'confetti' ) . '</a>';
 }
 add_action( 'wps_confetti_header', 'wps_confetti_header_upgrade' );
 
+add_action( 'wps_confetti_options_behavior', 'wps_confetti_locked_behavior_options', 10, 2 );
 /**
- * Show the upgrade notice when viewing the options page.
+ * The behavior options, locked, so people can see what they would get.
+ *
+ * The rows come from styles/options.json, the same file the premium version
+ * renders its real options from, so the two can never drift apart.
+ *
+ * @param array  $instance            Current instance settings.
+ * @param string $current_instance_id Instance being edited.
  */
-function wps_confetti_options_upgrade() {
-	if ( isset( $_GET['tab'] ) && $_GET['tab'] === 'integrations_promo' ) {
+function wps_confetti_locked_behavior_options( $instance, $current_instance_id ) {
+
+	$options = WPSunshine_Confetti_Styles::get_options_in_group( 'behavior' );
+
+	if ( empty( $options ) ) {
 		return;
 	}
+
+	echo '<div class="wps-locked-group">';
+
+	foreach ( $options as $option_id => $option ) {
+		wps_confetti_locked_option_row( $option_id, $option );
+	}
+
+	wps_confetti_unlock_overlay(
+		__( 'Unlock all behavior options', 'confetti' ),
+		__( 'Fine-tune how it moves', 'confetti' ),
+		sprintf(
+			/* translators: %s: a few behavior option names. */
+			__( '%s and more are part of Premium.', 'confetti' ),
+			wps_confetti_name_a_few( wp_list_pluck( $options, 'label' ), 3 )
+		)
+	);
+
+	echo '</div>';
+}
+
+add_action( 'wps_confetti_options_physics', 'wps_confetti_locked_physics_options', 10, 2 );
+/**
+ * The advanced physics options, locked. Core opens the section around these,
+ * so opening it is what reveals the upgrade notice.
+ *
+ * @param array  $instance            Current instance settings.
+ * @param string $current_instance_id Instance being edited.
+ */
+function wps_confetti_locked_physics_options( $instance, $current_instance_id ) {
+
+	$options = WPSunshine_Confetti_Styles::get_options_in_group( 'physics' );
+
+	if ( empty( $options ) ) {
+		return;
+	}
+
+	echo '<div class="wps-locked-group">';
+
+	foreach ( $options as $option_id => $option ) {
+		wps_confetti_locked_option_row( $option_id, $option );
+	}
+
+	wps_confetti_unlock_overlay(
+		__( 'Unlock all physics controls', 'confetti' ),
+		__( 'Take control of the physics', 'confetti' ),
+		sprintf(
+			/* translators: %s: a few physics option names. */
+			__( '%s and more are part of Premium.', 'confetti' ),
+			wps_confetti_name_a_few( wp_list_pluck( $options, 'label' ), 3 )
+		)
+	);
+
+	echo '</div>';
+}
+
+add_action( 'wps_confetti_instance_panels', 'wps_confetti_locked_appearance_panel', 10, 2 );
+/**
+ * The appearance panel, locked behind an unlock button.
+ *
+ * @param array  $instance            Current instance settings.
+ * @param string $current_instance_id Instance being edited.
+ */
+function wps_confetti_locked_appearance_panel( $instance, $current_instance_id ) {
+
+	$options = WPSunshine_Confetti_Styles::get_options_in_group( 'appearance' );
+
+	if ( empty( $options ) ) {
+		return;
+	}
+
+	WPSunshine_Confetti_Options::panel_open(
+		'appearance',
+		__( 'Appearance', 'confetti' ),
+		array(
+			'badge'       => __( 'Premium', 'confetti' ),
+			'locked'      => true,
+			'collapsible' => true,
+		)
+	);
+
+	foreach ( $options as $option_id => $option ) {
+		wps_confetti_locked_option_row( $option_id, $option );
+	}
+
+	wps_confetti_unlock_overlay(
+		sprintf(
+			/* translators: %s: the appearance option names. */
+			__( 'Unlock %s', 'confetti' ),
+			WPSunshine_Confetti_Styles::label_list( wp_list_pluck( $options, 'label' ) )
+		),
+		__( 'Make it match your brand', 'confetti' ),
+		sprintf(
+			/* translators: %s: the appearance option names. */
+			__( '%s are part of Premium.', 'confetti' ),
+			WPSunshine_Confetti_Styles::label_list( wp_list_pluck( $options, 'label' ) )
+		)
+	);
+
+	WPSunshine_Confetti_Options::panel_close();
+}
+
+/**
+ * The button that floats over a locked group.
+ *
+ * @param string $label Button text.
+ */
+function wps_confetti_unlock_overlay( $label, $title = '', $sub = '' ) {
 	?>
-	<div id="wps-promos">
-		<div id="wps-confetti-upgrade-premium">
-		<div class="wps-promo wps-promo-featured">
-			<h3>Unlock Premium Confetti Features!</h3>
-			<ul>
-				<li>Customize colors and 15 more confetti options</li>
-				<li>Integrations with popular e-commerce, form, and LMS plugins</li>
-				<!-- <li>Create multiple confetti configurations</li> -->
-			</ul>
-			<p><a href="https://www.wpsunshine.com/plugins/confetti/?utm_source=plugin&utm_medium=banner&utm_content=upgrade&utm_campaign=plugin_upgrade" target="_blank" class="button"><?php _e( 'Upgrade Now!', 'confetti' ); ?></a></p>
-			<p class="wps-promo-price">Starting at $19, 14 days money back guarantee</p>
-		</div>
-</div>
-		<h2>More WP Sunshine Plugins:</h2>
-		<div id="wps-cb" class="wps-promo">
-			<h3>Conversion Bridge 📊</h3>
-			<p>Effortlessly connect your WordPress site with 15+ analytics and 8+ ad platforms, enabling no-code conversion tracking across 50+ popular plugins.</p>
-			<p><a href="https://conversionbridgewp.com/?utm_source=plugin&utm_medium=link&utm_campaign=confetti" target="_blank" class="button">Learn more</a></p>
-		</div>
-		<div id="wps-confetti" class="wps-promo">
-			<h3>Address Autocomplete Anything 📍</h3>
-			<p>Add address autocomplete to any form on your WordPress website for better user experience.</p>
-			<p><a href="https://wpsunshine.com/plugins/address-autocomplete/?utm_source=plugin&utm_medium=banner&utm_content=upgrade&utm_campaign=aa_upgrade" target="_blank" class="button">Learn more</a></p>
-		</div>
+	<div class="wps-unlock-overlay">
+		<a href="#" class="button button-primary wps-confetti-upgrade-locked" data-upgrade-title="<?php echo esc_attr( $title ); ?>" data-upgrade-sub="<?php echo esc_attr( $sub ); ?>">
+			<span class="dashicons dashicons-lock"></span> <?php echo esc_html( $label ); ?>
+		</a>
 	</div>
 	<?php
 }
-add_action( 'wps_confetti_options_before', 'wps_confetti_options_upgrade' );
+
+/**
+ * One locked option row for the free version. It looks like the real control
+ * so people can see exactly what they are buying, it just cannot be changed.
+ *
+ * @param string $option_id Option ID.
+ * @param array  $option    Option definition.
+ */
+function wps_confetti_locked_option_row( $option_id, $option ) {
+
+	$styles = WPSunshine_Confetti_Styles::get_styles_for_option( $option_id );
+
+	if ( empty( $styles ) ) {
+		return;
+	}
+
+	$render  = isset( $option['render'] ) ? $option['render'] : 'input';
+	$default = isset( $option['default'] ) ? $option['default'] : '';
+
+	WPSunshine_Confetti_Options::option_row_open( $option['label'], $styles );
+
+	switch ( $render ) {
+
+		case 'colors':
+			echo '<div class="wps-swatches">';
+			foreach ( array( '#a8e6ff', '#c9b6ff', '#ffb3c7', '#c3f0b4' ) as $color ) {
+				echo '<span class="wps-color-box" style="background-color: ' . esc_attr( $color ) . ';"></span>';
+			}
+			echo '<span class="wps-swatch-add">' . esc_html__( '+ Add', 'confetti' ) . '</span>';
+			echo '</div>';
+			break;
+
+		case 'shapes':
+			echo '<div class="wps-choice-pills">';
+			foreach ( WPSunshine_Confetti_Options::get_shape_choices() as $shape ) {
+				echo '<span class="wps-choice-pill"><span class="wps-choice-pill__icon" aria-hidden="true">' . esc_html( $shape['icon'] ) . '</span><span class="wps-choice-pill__label">' . esc_html( $shape['label'] ) . '</span></span>';
+			}
+			echo '</div>';
+			break;
+
+		case 'svgs':
+			echo '<div class="wps-tiles"><span class="wps-tile wps-tile--add">' . esc_html__( '+ Add', 'confetti' ) . '</span></div>';
+			break;
+
+		case 'emojis':
+			echo '<div class="wps-tiles">';
+			foreach ( array( '🎉', '🎊' ) as $emoji ) {
+				echo '<span class="wps-tile">' . esc_html( $emoji ) . '</span>';
+			}
+			echo '<span class="wps-tile wps-tile--add">' . esc_html__( '+ Add', 'confetti' ) . '</span>';
+			echo '</div>';
+			break;
+
+		case 'origin':
+			?>
+			<div class="wps-origin__fields">
+				<label>X <input name="origin_x" type="number" step="0.01" value=".5" readonly data-default=".5" /></label>
+				<label>Y <input name="origin_y" type="number" step="0.01" value=".5" readonly data-default=".5" /></label>
+			</div>
+			<?php
+			break;
+
+		case 'overlay':
+			?>
+			<label><input type="checkbox" disabled /> <?php esc_html_e( 'Cover the screen with a message', 'confetti' ); ?></label>
+			<?php
+			break;
+
+		default:
+			if ( isset( $option['type'] ) && 'checkbox' === $option['type'] ) {
+				?>
+				<label><input type="checkbox" disabled /> <?php echo esc_html( $option['checkbox_label'] ); ?></label>
+				<?php
+			} else {
+				WPSunshine_Confetti_Options::render_number_option( $option_id, $option, $default, true );
+			}
+			break;
+	}
+
+	WPSunshine_Confetti_Options::option_row_close( isset( $option['description'] ) ? $option['description'] : '' );
+}
+
+add_action( 'wps_confetti_instance_sidebar', 'wps_confetti_sidebar_upgrade', 20, 2 );
+/**
+ * The upgrade card in the sidebar. Every number in it is counted, never typed.
+ *
+ * @param array  $instance            Current instance settings.
+ * @param string $current_instance_id Instance being edited.
+ */
+function wps_confetti_sidebar_upgrade( $instance, $current_instance_id ) {
+
+	$locked_styles = wps_confetti_locked_styles();
+	$integrations  = WPS_Confetti()->get_integration_names();
+	$appearance    = WPSunshine_Confetti_Styles::get_options_in_group( 'appearance' );
+	?>
+	<div class="wps-card wps-card--upgrade">
+		<p class="wps-card__eyebrow"><?php esc_html_e( 'Confetti Premium', 'confetti' ); ?></p>
+		<h3>
+			<?php
+			printf(
+				/* translators: 1: number of premium styles, 2: number of plugin integrations. */
+				esc_html__( '%1$d more styles, brand colors & %2$d plugin integrations', 'confetti' ),
+				count( $locked_styles ),
+				count( $integrations )
+			);
+			?>
+		</h3>
+		<ul>
+			<li><?php esc_html_e( 'Unlimited confetti instances', 'confetti' ); ?></li>
+			<li><?php echo esc_html( WPSunshine_Confetti_Styles::label_list( wp_list_pluck( $appearance, 'label' ) ) ); ?></li>
+			<li>
+				<?php
+				printf(
+					/* translators: 1: a few plugin names, 2: how many more there are. */
+					esc_html__( '%1$s and %2$d more plugins', 'confetti' ),
+					esc_html( wps_confetti_name_a_few_integrations( $integrations ) ),
+					esc_html( max( 0, count( $integrations ) - 3 ) )
+				);
+				?>
+			</li>
+		</ul>
+		<p>
+			<a href="https://wpsunshine.com/plugins/confetti/?utm_source=plugin&utm_medium=sidebar&utm_content=upgrade&utm_campaign=plugin_upgrade" target="_blank" class="button button-primary">
+				<?php esc_html_e( 'Upgrade — from $19/yr', 'confetti' ); ?>
+			</a>
+		</p>
+		<p class="wps-card__fineprint"><?php esc_html_e( '14-day money back guarantee', 'confetti' ); ?></p>
+	</div>
+	<?php
+}
+
+add_action( 'wps_confetti_instance_sidebar', 'wps_confetti_sidebar_more_plugins', 30, 2 );
+/**
+ * The other WP Sunshine plugins, at the bottom of the sidebar.
+ */
+function wps_confetti_sidebar_more_plugins() {
+
+	$plugins = array(
+		array(
+			'name'  => 'Conversion Bridge',
+			'blurb' => __( 'No code analytics and conversion tracking for 70+ plugin integrations, 20+ analytics platforms, 9 ad platforms.', 'confetti' ),
+			'url'   => 'https://conversionbridgewp.com/',
+		),
+		array(
+			'name'  => 'Address Autocomplete Anything',
+			'blurb' => __( 'Address autocomplete on any form.', 'confetti' ),
+			'url'   => 'https://wpsunshine.com/plugins/address-autocomplete/',
+		),
+	);
+	?>
+	<div class="wps-card wps-card--plugins">
+		<p class="wps-card__eyebrow"><?php esc_html_e( 'More from WP Sunshine', 'confetti' ); ?></p>
+		<ul>
+			<?php foreach ( $plugins as $plugin ) : ?>
+				<li>
+					<a href="<?php echo esc_url( $plugin['url'] ); ?>?utm_source=plugin&utm_medium=sidebar&utm_campaign=confetti" target="_blank"><?php echo esc_html( $plugin['name'] ); ?></a>
+					<span class="description"><?php echo esc_html( $plugin['blurb'] ); ?></span>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+	</div>
+	<?php
+}
+
+add_action( 'admin_footer', 'wps_confetti_upgrade_popup' );
+/**
+ * The popup every locked control opens, and the script that opens it.
+ *
+ * The heading changes to match whatever was clicked, so the popup answers the
+ * question the person actually asked. Triggers set data-upgrade-title and
+ * data-upgrade-sub; anything that does not falls back to the generic wording.
+ */
+function wps_confetti_upgrade_popup() {
+
+	if ( ! isset( $_GET['page'] ) || 'wps_confetti' !== $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return;
+	}
+
+	$locked_styles = wps_confetti_locked_styles();
+	$integrations  = WPS_Confetti()->get_integration_names();
+	$appearance    = WPSunshine_Confetti_Styles::get_options_in_group( 'appearance' );
+	$physics       = WPSunshine_Confetti_Styles::get_options_in_group( 'physics' );
+
+	// Counted, never typed, so this list cannot promise the wrong thing.
+	$selling_points = array(
+		WPSunshine_Confetti_Styles::label_list( wp_list_pluck( $appearance, 'label' ) ),
+		sprintf(
+			/* translators: %d: number of premium styles. */
+			_n( '%d extra style', '%d extra styles', count( $locked_styles ), 'confetti' ),
+			count( $locked_styles )
+		),
+		__( 'Unlimited instances', 'confetti' ),
+		sprintf(
+			/* translators: %d: number of plugin integrations. */
+			_n( '%d plugin integration', '%d plugin integrations', count( $integrations ), 'confetti' ),
+			count( $integrations )
+		),
+		sprintf(
+			/* translators: %d: number of advanced physics options. */
+			_n( '%d physics control', '%d physics controls', count( $physics ), 'confetti' ),
+			count( $physics )
+		),
+		__( 'Trigger on scroll into view', 'confetti' ),
+	);
+	?>
+	<div id="wps-confetti-upgrade-premium" style="display:none;">
+		<div class="wps-upgrade">
+
+			<div class="wps-upgrade__head">
+				<p class="wps-upgrade__eyebrow"><?php esc_html_e( 'Confetti Premium', 'confetti' ); ?></p>
+				<h2 class="wps-upgrade__title"><?php esc_html_e( 'Unlock the whole thing', 'confetti' ); ?></h2>
+				<p class="wps-upgrade__sub"><?php esc_html_e( 'Everything below is part of Premium.', 'confetti' ); ?></p>
+			</div>
+
+			<div class="wps-upgrade__body">
+				<ul class="wps-upgrade__list">
+					<?php foreach ( $selling_points as $point ) : ?>
+						<li><?php echo esc_html( $point ); ?></li>
+					<?php endforeach; ?>
+				</ul>
+
+				<div class="wps-upgrade__actions">
+					<a href="https://www.wpsunshine.com/plugins/confetti/?utm_source=plugin&utm_medium=popup&utm_content=upgrade&utm_campaign=plugin_upgrade" target="_blank" class="button button-primary">
+						<?php esc_html_e( 'Upgrade — from $19/yr', 'confetti' ); ?>
+					</a>
+					<span class="wps-upgrade__fineprint"><?php esc_html_e( '14-day money back guarantee', 'confetti' ); ?></span>
+					<a href="#" class="wps-upgrade__dismiss"><?php esc_html_e( 'Maybe later', 'confetti' ); ?></a>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<script>
+		jQuery( document ).ready( function( $ ) {
+
+			var defaults = {
+				title: <?php echo wp_json_encode( __( 'Unlock the whole thing', 'confetti' ) ); ?>,
+				sub: <?php echo wp_json_encode( __( 'Everything below is part of Premium.', 'confetti' ) ); ?>
+			};
+
+			function wps_show_upgrade( $trigger ) {
+
+				var title = $trigger.data( 'upgrade-title' );
+				var sub   = $trigger.data( 'upgrade-sub' );
+
+				// A locked style card names the style you just reached for.
+				if ( ! title && $trigger.hasClass( 'wps-style-card' ) ) {
+					title = $trigger.data( 'name' );
+					sub   = <?php echo wp_json_encode( __( 'This style is part of Premium.', 'confetti' ) ); ?>;
+				}
+
+				$( '.wps-upgrade__title' ).text( title || defaults.title );
+				$( '.wps-upgrade__sub' ).text( sub || defaults.sub );
+
+				tb_show( '', '#TB_inline?width=620&inlineId=wps-confetti-upgrade-premium' );
+			}
+
+			// Anything locked opens the same popup.
+			$( document ).on( 'click', '.wps-confetti-upgrade-locked, .wps-style-card.is-locked, .wps-panel.is-locked input, .wps-panel.is-locked .wps-tile, .wps-locked-group input[readonly], #wps-add-instance.is-locked', function( e ) {
+				e.preventDefault();
+				wps_show_upgrade( $( this ) );
+			});
+
+			$( document ).on( 'click', '.wps-upgrade__dismiss', function( e ) {
+				e.preventDefault();
+				tb_remove();
+			});
+
+		});
+	</script>
+	<?php
+}
 
 /**
  * Request a review notice.
@@ -102,184 +516,3 @@ function wps_confetti_review_dismiss() {
 	wp_die();
 }
 add_action( 'wp_ajax_wps_confetti_dismiss_review', 'wps_confetti_review_dismiss' );
-
-add_action( 'wps_confetti_instance_options', 'wps_confetti_instance_options_upgrade_fake_options', 99, 2 );
-function wps_confetti_instance_options_upgrade_fake_options( $instance, $current_instance_id ) {
-	// Promote premium options here, explain what kind of things you can do with premium.
-	?>
-	
-		<tr>
-			<td colspan="2" style="padding: 20px 0;">
-				<span style="border: 1px solid #ddd; padding: 10px 20px; border-radius: 5px; display: inline-block;">
-				🎉 15 more options available with Premium - <a href="#" class="wps-confetti-upgrade-options-link">See additional options</a>
-				</span>
-				<script>
-					jQuery( document ).ready( function() {
-						jQuery( '.wps-confetti-upgrade-options-link' ).on( 'click', function( e ) {
-							e.preventDefault();
-							jQuery( '.upgrade-option' ).toggle();
-						});
-					});
-				</script>
-			</td>
-		</tr>
-		<tr class="upgrade-option" style="display: none;">
-			<th><?php _e( 'Colors', 'confetti' ); ?></th>
-				<td>
-					<a href="#" id="wps-confetti-add-color"><?php _e( 'Add custom color', 'confetti' ); ?></a>
-				</td>
-			</tr>
-			<tr class="upgrade-option" style="display: none;">
-				<th><?php _e( 'Duration', 'confetti' ); ?></th>
-				<td>
-				<label><input name="duration" type="number" min="0" step="1" value="" readonly data-default="3" /> <?php _e( 'Default', 'confetti' ); ?>: 3</label>
-					<p class="description"><?php _e( 'How long should this style last, in seconds.', 'confetti' ); ?></p>
-				</td>
-			</tr>
-			<tr class="upgrade-option" style="display: none;">
-				<th><?php _e( 'Delay', 'confetti' ); ?></th>
-				<td>
-				<label><input name="delay" type="number" min="0" step="1" value="0" readonly data-default="0" /> <?php _e( 'Default', 'confetti' ); ?>: 0</label>
-					<p class="description"><?php _e( 'How long we wait to run the confetti, in seconds.', 'confetti' ); ?></p>
-				</td>
-			</tr>
-			<tr class="upgrade-option" style="display: none;">
-				<th><?php _e( 'Speed', 'confetti' ); ?></th>
-				<td>
-				<label><input name="speed" type="number" min="1" max="100" step="1" value="75" readonly data-default="75" /> <?php _e( 'Default', 'confetti' ); ?>: 75</label>
-					<p class="description"><?php _e( 'How fast should the style play, 1-100', 'confetti' ); ?></p>
-				</td>
-			</tr>
-			<tr class="upgrade-option" style="display: none;">
-				<th><?php _e( 'Particle Count', 'confetti' ); ?></th>
-				<td>
-				<label><input name="particleCount" type="number" value="50" readonly data-default="50" /> <?php _e( 'Default', 'confetti' ); ?>: 50</label>
-					<p class="description"><?php _e( 'The number of confetti to launch. More is always fun... but be cool, there is a lot of math involved.', 'confetti' ); ?></p>
-				</td>
-			</tr>
-			<tr class="upgrade-option" style="display: none;">
-				<th><?php _e( 'Launch Angle', 'confetti' ); ?></th>
-				<td>
-				<label><input name="angle" type="number" value="90" readonly data-default="90" /> <?php _e( 'Default', 'confetti' ); ?>: 90</label>
-					<p class="description"><?php _e( 'The angle in which to launch the confetti, in degrees. 90 is straight up.', 'confetti' ); ?></p>
-				</td>
-			</tr>
-			<tr class="upgrade-option" style="display: none;">
-				<th><?php _e( 'Spread', 'confetti' ); ?></th>
-				<td>
-				<label><input name="spread" type="number" min="0" max="360" step="1" value="45" readonly data-default="45" /> <?php _e( 'Default', 'confetti' ); ?>: 45</label>
-					<p class="description"><?php _e( 'How far off center the confetti can go, in degrees. 45 means the confetti will launch at the defined angle plus or minus 22.5 degrees.', 'confetti' ); ?></p>
-				</td>
-			</tr>
-			<tr class="upgrade-option" style="display: none;">
-				<th><?php _e( 'Start Velocity', 'confetti' ); ?></th>
-				<td>
-				<label><input name="startVelocity" type="number" value="45" readonly data-default="45" /> <?php _e( 'Default', 'confetti' ); ?>: 45</label>
-					<p class="description"><?php _e( 'How fast the confetti will start going, in pixels.', 'confetti' ); ?></p>
-				</td>
-			</tr>
-			<tr class="upgrade-option" style="display: none;">
-				<th><?php _e( 'Decay', 'confetti' ); ?></th>
-				<td>
-				<label><input name="decay" type="number" min="0" max="1" step=".01" value=".9" readonly data-default=".9" /> <?php _e( 'Default', 'confetti' ); ?>: .9</label>
-					<p class="description"><?php _e( 'How quickly the confetti will lose speed. Keep this number between 0 and 1, otherwise the confetti will gain speed. Better yet, just never change it.', 'confetti' ); ?></p>
-				</td>
-			</tr>
-			<tr class="upgrade-option" style="display: none;">
-				<th><?php _e( 'Gravity', 'confetti' ); ?></th>
-				<td>
-				<label><input name="gravity" type="number" min="0" max="1" step=".01" value="1" readonly data-default="1" /> <?php _e( 'Default', 'confetti' ); ?>: 1</label>
-					<p class="description"><?php _e( 'How quickly the particles are pulled down. 1 is full gravity, 0.5 is half gravity, etc., but there are no limits. You can even make particles go up if you would like.', 'confetti' ); ?></p>
-				</td>
-			</tr>
-			<tr class="upgrade-option" style="display: none;">
-				<th><?php _e( 'Drift', 'confetti' ); ?></th>
-				<td>
-				<label><input name="drift" type="number" step=".1" value="0" readonly data-default="0" /> <?php _e( 'Default', 'confetti' ); ?>: 0</label>
-					<p class="description"><?php _e( 'How much to the side the confetti will drift. The default is 0, meaning that they will fall straight down. Use a negative number for left and positive number for right.', 'confetti' ); ?></p>
-				</td>
-			</tr>
-			<tr class="upgrade-option" style="display: none;">
-				<th><?php _e( 'Ticks', 'confetti' ); ?></th>
-				<td>
-				<label><input name="ticks" type="number" min="0" value="200" readonly data-default="200" /> <?php _e( 'Default', 'confetti' ); ?>: 200</label>
-					<p class="description"><?php _e( 'How many times the confetti will move. This is abstract... but play with it if the confetti disappear too quickly for you.', 'confetti' ); ?></p>
-				</td>
-			</tr>
-			<tr class="upgrade-option" style="display: none;">
-				<th><?php _e( 'Scalar', 'confetti' ); ?></th>
-				<td>
-				<label><input name="scalar" type="number" min="0" step=".01" value="1" readonly data-default="1" /> <?php _e( 'Default', 'confetti' ); ?>: 1</label>
-					<p class="description"><?php _e( 'Scale factor for each confetti particle. Use decimals to make the confetti smaller. Go on, try teeny tiny confetti, they are adorable!', 'confetti' ); ?></p>
-				</td>
-			</tr>
-			<tr class="upgrade-option" style="display: none;">
-				<th><?php _e( 'Z-Index', 'confetti' ); ?></th>
-				<td>
-				<label><input name="zindex" type="number" value="100" readonly data-default="100" /> <?php _e( 'Default', 'confetti' ); ?>: 100</label>
-					<p class="description"><?php _e( 'The confetti should be on top, after all. But if you have a crazy high page, you can set it even higher.', 'confetti' ); ?></p>
-				</td>
-			</tr>
-			<tr class="upgrade-option" style="display: none;">
-				<th><?php _e( 'Origin', 'confetti' ); ?></th>
-				<td>
-				<label>X <input name="origin_x" type="number" min="0" max="1" step="0.01" value=".5" readonly data-default=".5" /> <?php _e( 'Default', 'confetti' ); ?>: .5</label><br />
-				<label>Y <input name="origin_y" type="number" min="0" max="1" step="0.01" value=".5" readonly data-default=".5" /> <?php _e( 'Default', 'confetti' ); ?>: .5</label>
-					<p class="description">
-						<?php _e( 'Where to start firing confetti from. Feel free to launch off-screen if you would like with negative numbers.', 'confetti' ); ?><br />
-						<?php _e( 'X = Left to right with 0 left edge and 1 right edge, Y = Top to bottom with 0 top edge and 1 bottom edge', 'confetti' ); ?>
-					</p>
-				</td>
-			</tr>
-
-			<script>
-				jQuery( document ).ready( function() {
-					jQuery( 'input[readonly]' ).on( 'click', function() {
-						// Open the .wps-promo-featured div in thickbox
-					tb_show( '<?php _e( 'Upgrade to Premium', 'confetti' ); ?>', '#TB_inline?width=400&inlineId=wps-confetti-upgrade-premium' );
-					});
-				});
-			</script>
-	<?php
-}
-
-// Add instance promo popup (can be unhooked by premium)
-add_action( 'admin_footer', 'wps_confetti_add_instance_promo' );
-function wps_confetti_add_instance_promo() {
-	?>
-		<script>
-			jQuery( document ).ready(function($) {
-				$( '#wps-add-instance' ).on( 'click', function(e){
-					e.preventDefault();
-					tb_show( '<?php _e( 'Add New Instance - Premium Feature', 'confetti' ); ?>', '#TB_inline?width=600&height=460&inlineId=wps-add-instance-promo' );
-					return false;
-				});
-			});
-		</script>
-
-		<div id="wps-add-instance-promo" style="display:none;">
-			<div class="wps-promo wps-promo-featured">
-				<h3><?php _e( 'Add New Confetti Instances', 'confetti' ); ?></h3>
-				<p><?php _e( 'Create multiple confetti instances with different styles and settings. Perfect for different pages, events, or user interactions.', 'confetti' ); ?></p>
-				
-				<h3><?php _e( 'Premium Features:', 'confetti' ); ?></h3>
-				<ul>
-					<li><?php _e( 'Unlimited confetti instances', 'confetti' ); ?></li>
-					<li><?php _e( 'Advanced customization options per instance', 'confetti' ); ?></li>
-					<li><?php _e( 'Priority support and updates', 'confetti' ); ?></li>
-				</ul>
-
-				<div style="text-align: center; margin-top: 30px;">
-					<a href="https://wpsunshine.com/plugins/confetti/?utm_source=plugin&utm_medium=popup&utm_campaign=confetti" target="_blank" class="button">
-					<?php _e( 'Upgrade to Premium', 'confetti' ); ?>
-					</a>
-					<p class="wps-promo-price">
-					<?php _e( 'Starting at $19/year', 'confetti' ); ?> &mdash; <?php _e( '14 days money back guarantee', 'confetti' ); ?>
-					</p>
-				</div>
-			</div>
-		</div>
-		<?php
-}
-
-?>

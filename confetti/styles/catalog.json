@@ -1,0 +1,239 @@
+{
+	"_comment": "Every confetti style, free and premium. This file ships in the free plugin too, so the free version can list premium styles as locked without shipping the code that runs them. Adding a style: add an entry here and drop a matching JS file in assets/js/styles/{id}.js (core for free, premium plugin for premium). See STYLES.md.",
+
+	"cannon": {
+		"name": "Basic Cannon",
+		"tier": "free",
+		"icon": "🎉",
+		"blurb": "A single burst fired from one spot. The classic.",
+		"options": [ "particleCount", "angle", "spread", "startVelocity", "decay", "gravity", "drift", "ticks", "origin" ]
+	},
+	"cannon_real": {
+		"name": "Realistic Cannon",
+		"tier": "free",
+		"icon": "🎊",
+		"blurb": "Five overlapping bursts of different sizes, so it looks like a real cannon rather than one even puff.",
+		"options": [ "particleCount", "startVelocity", "decay", "gravity", "drift", "ticks", "origin" ]
+	},
+	"cannon_repeat": {
+		"name": "Repeating Cannon",
+		"tier": "free",
+		"icon": "🔁",
+		"blurb": "Keeps firing for as long as you set, varying the angle and spread each time.",
+		"options": [ "duration", "speed", "particleCount", "startVelocity", "decay", "gravity", "drift", "ticks", "origin" ]
+	},
+	"fireworks": {
+		"name": "Fireworks",
+		"tier": "free",
+		"icon": "🎆",
+		"blurb": "Bursts going off at random spots near the top of the screen, thinning out as it finishes.",
+		"options": [ "duration", "speed", "startVelocity", "decay", "gravity", "drift", "ticks" ]
+	},
+	"burst": {
+		"name": "Burst",
+		"tier": "free",
+		"icon": "💥",
+		"blurb": "Three quick pulses that radiate out from the center and hang in the air.",
+		"options": [ "particleCount" ]
+	},
+	"school": {
+		"name": "School Pride",
+		"tier": "free",
+		"icon": "🏟️",
+		"blurb": "Two steady streams firing in from the left and right edges at once.",
+		"options": [ "duration", "startVelocity", "decay", "gravity", "drift", "ticks", "origin" ]
+	},
+	"falling": {
+		"name": "Falling",
+		"tier": "free",
+		"icon": "🌧️",
+		"blurb": "Confetti drifting down from above the screen, one piece at a time.",
+		"options": [ "duration", "particleCount", "decay", "gravity", "drift" ]
+	},
+
+	"vortex": {
+		"name": "Vortex",
+		"tier": "premium",
+		"icon": "🌪️",
+		"blurb": "A tornado. The nozzle spins around the middle of the screen while the spray tightens inward, so the confetti coils instead of just spraying.",
+		"options": [ "duration", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"grand_finale": {
+		"name": "Grand Finale",
+		"tier": "premium",
+		"icon": "🎆",
+		"blurb": "Fireworks, but you see the shells go up first. Three sparks streak from the bottom trailing embers, then each one bursts at the top.",
+		"options": [ "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"implosion": {
+		"name": "Implosion",
+		"tier": "premium",
+		"icon": "🕳️",
+		"blurb": "Confetti fires inward from a ring around the screen, collapses into the center, then the whole thing blows back out.",
+		"options": [ "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"wave": {
+		"name": "Stadium Wave",
+		"tier": "premium",
+		"icon": "🌊",
+		"blurb": "A jet of confetti runs along the bottom of the screen from one side to the other and back, like the wave going around a stadium.",
+		"options": [ "duration", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"fountain": {
+		"name": "Fountain",
+		"tier": "premium",
+		"icon": "⛲",
+		"blurb": "A narrow, steady geyser from the bottom center. Particles arch up and rain back down.",
+		"options": [ "duration", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"pinata": {
+		"name": "Piñata",
+		"tier": "premium",
+		"icon": "🪅",
+		"blurb": "Something bursts open above the screen. A heavy dump falls straight down first, then a slow trickle of stragglers keeps dropping.",
+		"options": [ "duration", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"cursor": {
+		"name": "Cursor Trail",
+		"tier": "premium",
+		"icon": "✨",
+		"blurb": "Confetti puffs out of the visitor's pointer wherever they move it. On a phone it follows their finger.",
+		"options": [ "duration", "speed", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"heartbeat": {
+		"name": "Heartbeat",
+		"tier": "premium",
+		"icon": "💗",
+		"blurb": "Two pulses out of the center, a big one and a small one, then a pause, over and over. It has a beat instead of just going off.",
+		"options": [ "duration", "speed", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"sparkler": {
+		"name": "Sparkler",
+		"tier": "premium",
+		"icon": "🎇",
+		"blurb": "Hundreds of tiny short-lived sparks crackling in one spot. Reads as glitter, not confetti.",
+		"options": [ "duration", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"levitation": {
+		"name": "Levitation",
+		"tier": "premium",
+		"icon": "🫧",
+		"blurb": "Negative gravity. Everything drifts slowly up the screen and wobbles side to side instead of falling.",
+		"options": [ "duration", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"rainbow_wipe": {
+		"name": "Rainbow Wipe",
+		"tier": "premium",
+		"icon": "🌈",
+		"blurb": "A wall of confetti sweeps across the screen and the color shifts through the whole rainbow as it travels. Ignores custom colors on purpose.",
+		"options": [ "duration", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"border": {
+		"name": "Border Blast",
+		"tier": "premium",
+		"icon": "🖼️",
+		"blurb": "Fires inward from every edge of the screen in a quick rolling order. Frames the whole page instead of one spot.",
+		"options": [ "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"chaos": {
+		"name": "Total Chaos",
+		"tier": "premium",
+		"icon": "🤯",
+		"blurb": "Random spot, random direction, random size, random spread, as fast as the visitor's machine can draw it.",
+		"options": [ "duration", "speed", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"word": {
+		"name": "Confetti Type",
+		"tier": "premium",
+		"icon": "🔤",
+		"blurb": "Your word appears in mid-air, then every piece rattles harder and faster until the whole thing blows apart.",
+		"options": [ "duration", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 },
+		"fields": {
+			"word": {
+				"label": "Word",
+				"type": "text",
+				"default": "WOOHOO",
+				"maxlength": 12,
+				"description": "The word to spell out. Short words read best."
+			}
+		}
+	},
+	"shockwave": {
+		"name": "Shockwave",
+		"tier": "premium",
+		"icon": "💥",
+		"blurb": "A ring of confetti races outward from the center and keeps growing. The ring itself is the effect.",
+		"options": [ "duration", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"meteor": {
+		"name": "Meteor Shower",
+		"tier": "premium",
+		"icon": "☄️",
+		"blurb": "Everything travels the same way at once, fast and shallow and diagonal, instead of drifting straight down.",
+		"options": [ "duration", "speed", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"buildup": {
+		"name": "The Buildup",
+		"tier": "premium",
+		"icon": "🫣",
+		"blurb": "Starts as a nervous trickle and gets faster and bigger the whole way, then everything goes off at once at the end.",
+		"options": [ "duration", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"helix": {
+		"name": "Double Helix",
+		"tier": "premium",
+		"icon": "🧬",
+		"blurb": "Two streams wind around each other as they climb the screen, and the trail stays put so you see the shape it drew.",
+		"options": [ "duration", "particleCount" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"curtain": {
+		"name": "Curtain Drop",
+		"tier": "premium",
+		"icon": "🎭",
+		"blurb": "A solid line of confetti releases across the entire top edge at the same moment and drops as one sheet.",
+		"options": [ "duration", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 200 }
+	},
+	"popcorn": {
+		"name": "Popcorn",
+		"tier": "premium",
+		"icon": "🍿",
+		"blurb": "Small pops keep going off at random spots along the bottom, each one jumping up and dropping straight back.",
+		"options": [ "duration", "speed", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"slowmo": {
+		"name": "Slow Motion",
+		"tier": "premium",
+		"icon": "🐌",
+		"blurb": "Barely any gravity and almost no drag, so one burst creeps outward and hangs there. Calm instead of a bang.",
+		"options": [ "duration", "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	},
+	"countdown": {
+		"name": "Countdown",
+		"tier": "premium",
+		"icon": "⏱️",
+		"blurb": "Three small pops with a beat between them, each a little bigger, then the whole screen goes off. Built for New Year and launch moments.",
+		"options": [ "particleCount", "gravity" ],
+		"defaults": { "particleCount": 120 }
+	}
+}
